@@ -1,0 +1,126 @@
+<div id="user-type" class="col-12" *ngIf="steps[0]" (click)="moveForward()">
+  <div class="col-12"></div>
+  <div class="col-2 icon-holder" (click)="setEmployeeFlag(true)">
+    <i class="material-icons">directions_bus</i>
+    <p>Owner/Employee</p>
+  </div>
+  <div id="middle-section" class="col-12"></div>
+  <div class="col-2 icon-holder" (click)="setEmployeeFlag(false)">
+      <i class="material-icons">face</i>
+      <p>General User</p>
+  </div>
+</div>
+
+<!-- User Registration Form -->
+<div class="container col-4" *ngIf="steps[1]">
+  <form>
+    <fieldset>
+      <legend>User Registration:</legend>
+      <div class="form-row">
+          <div class="form-group col-md-12">
+            <!-- <label for="username">Username</label> -->
+            <input type="text" [(ngModel)]="user.username" name="username" class="form-control" id="username" placeholder="Username">
+            <div class="warn" *ngIf="user.username == ''">
+                Oops! It seems this username is already taken!
+              </div>
+          </div>
+          <div class="form-group col-md-12">
+            <!-- <label for="email">Email</label> -->
+            <input type="email" [(ngModel)]="user.email" name="email" class="form-control" id="email" placeholder="Email">
+            <div class="warn" *ngIf="user.email == ''">
+                This email is already linked to an account
+            </div>
+          </div>
+          <div class="form-group col-md-12">
+            <!-- <label for="passwordHash">passwordHash</label> -->
+            <input type="password" [(ngModel)]="user.passwordHash"  name="passwordHash" class="form-control" id="password" placeholder="Password">
+            <div class="warn" *ngIf="user.passwordHash == ''">
+                Password must be at least 8 characters (Letters, Numbers, '@', or '!')
+            </div>
+          </div>
+          <div class="form-group col-md-12">
+            <!-- <label for="Password2">Re-enter Password</label> -->
+            <input type="password" [(ngModel)]="password2"  name="password2" class="form-control" id="Password2" placeholder="Re-enter Password">
+            <div class="warn" *ngIf="password2 !== user.passwordHash">
+              Passwords do not match!
+            </div>
+          </div>
+          <div class="form-group col-md-12">
+              <!-- <label for="Password2">Re-enter Password</label> -->
+              <!-- <input type="file" (change)="onFileUpload($event)"  name="image" class="form-control" id="Image" placeholder="Browse"> -->
+              <!-- <input type="file" class="custom-file-input" (change)="onFileUpload($event)" name="file" id="CustomFile"> -->
+              <!-- <label class="custom-file-label" for="CustomFile">{{filename}}</label> -->
+            </div>
+          <div id="button-div" class="form-group col-md-12">
+            <button id="back-button" class="btn" (click)="moveBack()">Back</button>
+            <button [disabled]="!(password2 == user.passwordHash)" type="submit" class="btn btn-primary" (click)="onSubmit()">Continue</button>
+          </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+
+<!-- Employee Registration Form -->
+<div class="container col-8" *ngIf="steps[2] && isEmployee">
+    <form>
+      <fieldset>
+        <legend>Employee Registration:</legend>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+              <select class="custom-select">
+                  <option value="0" disabled>Select Your Food Truck</option>
+                  <option name="foodtruck-option" *ngFor="let foodtruck of foodtrucks;" value="{{foodtruck.id}}">{{foodtruck.name}}</option>
+              </select>
+              <a id="register-foodtruck" (click)="moveForward()">Register a new food truck</a>
+            </div>
+            <div id="button-div" class="form-group col-md-12">
+              <button id="back-button" class="btn">Back</button>
+              <button type="submit" class="btn btn-primary" (click)="onSubmitFoodTruck()">Continue</button>
+            </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+<!-- Food Truck Registration Form -->
+<div class="container col-8" *ngIf="steps[3] && isEmployee">
+    <form>
+      <fieldset>
+        <legend>Food Truck Registration:</legend>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+              <!-- <label for="name">Name</label> -->
+              <input type="text" [(ngModel)]="foodtruckToAdd.name" name="name" class="form-control" id="name" placeholder="Food Truck Name">
+            </div>
+            <div class="form-group col-md-6">
+              <!-- <label for="city">City</label> -->
+              <input type="text" [(ngModel)]="foodtruckToAdd.city"  name="city" class="form-control" id="city" placeholder="City">
+            </div>
+            <div class="form-group col-md-6">
+              <!-- <label for="company">Company</label> -->
+              <input type="text" [(ngModel)]="foodtruckToAdd.company" name="company" class="form-control" id="company" placeholder="Company Name">
+            </div>
+            <div class="form-group col-md-6">
+                <!-- <label for="state">State</label> -->
+                <input type="text" [(ngModel)]="foodtruckToAdd.state"  name="state" class="form-control" id="state" placeholder="State">
+            </div>
+            <div class="form-group col-md-6">
+                <!-- <label for="description">Description</label> -->
+                <input type="text" [(ngModel)]="foodtruckToAdd.description"  name="description" class="form-control" id="description" placeholder="Food Truck Description">
+            </div>
+            <div class="form-group col-md-6">
+                <!-- <label for="zipcode">Zip Code</label> -->
+                <input type="text" [(ngModel)]="foodtruckToAdd.zipCode"  name="zipcode" class="form-control" id="zipcode" placeholder="Zipcode">
+            </div>
+            <div class="form-group col-md-6">
+                <!-- <label for="locationDetails">Location Details</label> -->
+                <textarea type="text" rows="5" [(ngModel)]="foodtruckToAdd.locationDetails"  name="locationDetails" class="form-control" id="locationDetails" placeholder="Location Details"></textarea>
+            </div>
+            <div id="button-div" class="form-group col-md-12">
+              <button id="back-button" class="btn" (click)="moveBack()">Back</button>
+              <button type="submit" class="btn btn-primary" (click)="onSubmitFoodTruck()">Continue</button>
+            </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

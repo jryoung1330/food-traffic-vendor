@@ -1,0 +1,7 @@
+<div id="card" (click)="toggleExpansion()">
+  <h3>{{this.foodtruck.name}}</h3>
+  <p>{{this.foodtruck.locationDetails}}</p>
+  <i *ngIf="expanded">{{this.foodtruck.description}}</i>
+</div>
+<i class="material-icons" (click)="toggleFavorite()" *ngIf="!isFavorited">favorite_border</i>
+<i class="material-icons" (click)="toggleFavorite()" *ngIf="isFavorited">favorite</i>

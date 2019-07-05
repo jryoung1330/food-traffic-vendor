@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/foodtrucks")
 public class FoodTruckController {
@@ -33,12 +34,12 @@ public class FoodTruckController {
         return foodTruckService.getAllFoodTrucks(city, state);
     }
 
-    @GetMapping("/id={id}")
+    @GetMapping("/{id}")
     public FoodTruck getFoodTruck(@PathVariable Long id) {
         return foodTruckService.getFoodTruck(id);
     }
 
-    @GetMapping("/name={name}")
+    @GetMapping("/{name}")
     public FoodTruck getFoodTruck(@PathVariable String name) {
         return foodTruckService.getFoodTruck(name);
     }
@@ -48,7 +49,7 @@ public class FoodTruckController {
         return foodTruckService.createFoodTruck(foodTruck);
     }
 
-    @PutMapping("/id={id}")
+    @PutMapping("/{id}")
     public FoodTruck updateFoodTruck(@RequestBody FoodTruck foodTruck) {
         return foodTruckService.updateFoodTruck(foodTruck);
     }

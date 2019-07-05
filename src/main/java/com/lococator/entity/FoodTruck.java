@@ -1,10 +1,13 @@
 package com.lococator.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Set;
 
 @Entity
 @Table(name="FOODTRUCK")
@@ -61,9 +64,19 @@ public class FoodTruck {
     @Size(max = 1000)
     private String locationDetails;
 
+    @Column(name = "DESCRIPTION")
+    private String description;
+
+    @Column(name = "ASSOCIATE_KEY")
+    @JsonIgnore
+    private String associateKey;
+
+    @OneToMany(mappedBy = "foodTruckId")
+    private Set<User> ownerEmployees;
+
     public FoodTruck() {}
 
-    public FoodTruck(Long id, @NotNull String name, @NotNull String company, Double longitude, Double latitude, String streetAddress, @NotNull String city, @NotNull String state, @NotNull String county, int zipCode, String locationDetails) {
+    public FoodTruck(@Min(0) Long id, @NotNull @NotEmpty @Size(max = 50) String name, @NotNull @NotEmpty @Size(max = 100) String company, Double longitude, Double latitude, @Size(max = 100) String streetAddress, @NotNull @NotEmpty @Size(max = 100) String city, @NotEmpty @NotNull @Size(min = 2, max = 2) String state, @NotNull @Size(max = 100) String county, int zipCode, @Size(max = 1000) String locationDetails, String description, String associateKey, Set<User> ownerEmployees) {
         this.id = id;
         this.name = name;
         this.company = company;
@@ -75,6 +88,9 @@ public class FoodTruck {
         this.county = county;
         this.zipCode = zipCode;
         this.locationDetails = locationDetails;
+        this.description = description;
+        this.associateKey = associateKey;
+        this.ownerEmployees = ownerEmployees;
     }
 
     public Long getId() {
@@ -165,6 +181,26 @@ public class FoodTruck {
         this.locationDetails = locationDetails;
     }
 
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
+
+    public String getAssociateKey() {
+        return associateKey;
+    }
+
+    public void setAssociateKey(String associateKey) {
+        this.associateKey = associateKey;
+    }
+
+    public Set<User> getOwnerEmployees() {
+        return ownerEmployees;
+    }
+
+    public void setOwnerEmployees(Set<User> Users) {
+        this.ownerEmployees = Users;
+    }
+
     @Override
     public String toString() {
         return "FoodTruck{" +
@@ -179,6 +215,9 @@ public class FoodTruck {
                 ", county='" + county + '\'' +
                 ", zipCode=" + zipCode +
                 ", locationDetails='" + locationDetails + '\'' +
+                ", description='" + description + '\'' +
+                ", associateKey='" + associateKey + '\'' +
+                ", ownerEmployees=" + ownerEmployees +
                 '}';
     }
 }

@@ -1,0 +1,30 @@
+<nav class="navbar fixed-bottom navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">LOCO</a>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li id="home" class="nav-item">
+        <a class="nav-link" routerLink="/home"><i class="material-icons">map</i><span class="sr-only">(current)</span></a>
+      </li>
+      <li id="favorites" class="nav-item">
+        <a class="nav-link" routerLink="/favorites"><i class="material-icons">favorite_border</i></a>
+      </li>
+      <li id="profile" class="nav-item">
+        <a class="nav-link" routerLink="/user"><i class="material-icons">face</i></a>
+      </li>
+      <li id="register" class="nav-item">
+        <a class="nav-link" routerLink="/register"><i class="material-icons">add_circle_outline</i></a>
+      </li>
+    </ul>
+  </div>
+  <form class="form-inline">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">@</span>
+      </div>
+      <input type="text" disabled="disabled" class="form-control" placeholder={{this.username}} aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+  </form>
+  <button class="btn">
+    Logout
+  </button>
+</nav>
