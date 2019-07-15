@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, Input } from '@angular/core';
 import { RoutingService } from 'src/app/services/routing.service';
+import { User } from 'src/entity/user';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,12 +10,16 @@ import { RoutingService } from 'src/app/services/routing.service';
 })
 export class NavbarComponent implements OnInit {
 
-  username: String;
+  @Input('user') user: User = new User;
 
-  constructor(private routingService: RoutingService) { }
+  constructor(private routingService: RoutingService, private userService: UserService) { }
 
   ngOnInit() {
-    this.username = "user01";
+    this.userService.user$.subscribe((data) => {
+      if(data != undefined && data != null) {
+        this.user = data;
+      }
+    });
   }
 
   

@@ -23,9 +23,6 @@ export class HttpService {
   private foodtruckData: BehaviorSubject<any> = new BehaviorSubject<any>([]);
   public foodtruck$ = this.foodtruckData.asObservable();
 
-  private userData: BehaviorSubject<any> = new BehaviorSubject<any>([]);
-  public user$ = this.userData.asObservable();
-
   constructor(private httpClient:HttpClient) { }
 
   public fetchLocation() {
@@ -38,15 +35,8 @@ export class HttpService {
 
   public fetchFoodTrucksByLocation(city:string, state:string) {
     if(city != null && state != null) {
-      this.httpClient.get('http://localhost:8888/foodtrucks/city='+city+'/state='+state)
+      this.httpClient.get('http://35.227.104.10:8888/foodtrucks/city='+city+'/state='+state)
         .subscribe((payload) => {this.foodtruckData.next(payload);});
     }
-  }
-
-  public postNewUser(user:User) {
-    console.log(JSON.stringify(user));
-    console.log(user);
-    this.httpClient.post('http://localhost:8888/users', JSON.stringify(user), header)
-      .subscribe((payload)=>{this.userData.next(payload);});
   }
 }

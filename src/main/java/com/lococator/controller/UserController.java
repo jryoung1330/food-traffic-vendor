@@ -37,13 +37,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public User loginUser(@RequestBody User userToAuth, HttpServletResponse response, @CookieValue(value = "UBID", defaultValue="UBID") String token) {
-        String password = userToAuth.getPasswordHash();
-        String username = userToAuth.getUsername();
-        User user = userService.loginUser(username, password);
-        Cookie cookie = new Cookie("UID", user.getPasswordHash());
-        cookie.setPath("/");
-        response.addCookie(cookie);
+    public User loginUser(@RequestBody User userToAuth, HttpServletResponse response, @CookieValue(value = "LOCO-USER", defaultValue="LOCO-USER") String token) {
+        User user = userService.loginUser(userToAuth);
+        addCookie(response, user);
         user.setPasswordHash(null);
         return user;
     }
@@ -56,5 +52,13 @@ public class UserController {
     @PutMapping("/{id}")
     public User updateUser(@RequestBody User user) {
         return userService.updateUser(user);
+    }
+
+    private void addCookie(HttpServletResponse response, User user) {
+        Cookie cookie = new Cookie("LOCO-USER", user.getPasswordHash());
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
     }
 }

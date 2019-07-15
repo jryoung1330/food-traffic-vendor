@@ -12,6 +12,7 @@ import { TruckListCardComponent } from './components/truck-list-card/truck-list-
 import { UserComponent } from './components/user/user.component';
 import { RegisterComponent } from './components/register/register.component';
 import { FavoritesComponent } from './components/favorites/favorites.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { FavoritesComponent } from './components/favorites/favorites.component';
     TruckListCardComponent,
     UserComponent,
     RegisterComponent,
-    FavoritesComponent
+    FavoritesComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

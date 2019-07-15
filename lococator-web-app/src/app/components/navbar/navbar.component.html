@@ -1,4 +1,4 @@
-<nav class="navbar fixed-bottom navbar-expand-lg navbar-light bg-light">
+<nav class="navbar fixed-bottom navbar-expand-lg navbar-light bg-light" *ngIf="this.user.id > 0">
   <a class="navbar-brand" href="#">LOCO</a>
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
@@ -21,7 +21,7 @@
       <div class="input-group-prepend">
         <span class="input-group-text" id="basic-addon1">@</span>
       </div>
-      <input type="text" disabled="disabled" class="form-control" placeholder={{this.username}} aria-label="Username" aria-describedby="basic-addon1">
+      <input type="text" disabled="disabled" class="form-control" placeholder={{this.user.username}} aria-label="Username" aria-describedby="basic-addon1">
     </div>
   </form>
   <button class="btn">

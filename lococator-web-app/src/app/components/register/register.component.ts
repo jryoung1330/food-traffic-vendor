@@ -4,6 +4,7 @@ import { FoodTruck } from 'src/entity/foodtruck';
 import { Location } from 'src/entity/location';
 import { HttpService } from 'src/app/services/foodtruck.service';
 import { User } from 'src/entity/user';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-register',
@@ -19,16 +20,17 @@ export class RegisterComponent implements OnInit {
   location: Location;
   foodtrucks: Array<FoodTruck>;
   file: File;
+  newUser: User;
   @Input('foodtruckToAdd') foodtruckToAdd: FoodTruck = new FoodTruck;
 
-  constructor(private httpService: HttpService, private routingService:RoutingService) { }
+  constructor(private httpService: HttpService, private userService: UserService, private routingService:RoutingService) { }
 
   ngOnInit() {
     this.routingService.setActiveIcon();
     this.steps[0] = true;
     this.httpService.location$.subscribe((data) => this.location = data);
     this.httpService.foodtruck$.subscribe((data) => this.foodtrucks = data);
-    // this.httpService.user$.subscribe((data) => this.user = data);
+    this.userService.user$.subscribe((data) => this.newUser = data);
     this.httpService.fetchLocation();
   }
 
@@ -54,9 +56,7 @@ export class RegisterComponent implements OnInit {
 
   onSubmit() {
     this.user.passwordHash = btoa(this.user.passwordHash);
-    console.log(this.user);
-
-    this.httpService.postNewUser(this.user);
+    this.userService.postNewUser(this.user);
     this.moveForward();
     this.initializeFoodTruck();
   }
@@ -79,19 +79,5 @@ export class RegisterComponent implements OnInit {
 
   setEmployeeFlag(bool:boolean) {
     this.isEmployee = bool;
-  }
-
-  onFileUpload(event) {
-    let reader = new FileReader();
-    //if there is a file and it is not empty
-    if (event.target.files && event.target.files.length > 0) {
-      let file = event.target.files[0];
-      reader.readAsDataURL(file);
-      //get the file name, read the file into file object
-      reader.onload = () => {
-        console.log(file.name);
-        //this.user.image = reader.result.slice(1);]
-      }
-    }
   }
 }

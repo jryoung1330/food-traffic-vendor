@@ -105,26 +105,31 @@ public class UserService {
         return testDigest.equals(hash);
     }
 
-
-    public User loginUser(String username, String password) {
+    public User loginUser(User userToAuth) {
+        String password = userToAuth.getPasswordHash();
+        String username = userToAuth.getUsername();
         User user =  getUserByUsername(username);
-        if(verifyPassword(password, user.getPasswordSalt(), user.getPasswordHash())
-                && userRepo.existsByUsername(username)) {
 
+        // decode password
+        byte[] decodedBytes = Base64.getDecoder().decode(password);
+        password = new String(decodedBytes);
+
+        // verify and generate token
+        if(user != null && verifyPassword(password, user.getPasswordSalt(), user.getPasswordHash())) {
             Token token = new Token();
             token.setTokenCode(generateRandomToken());
             token.setUserId(user.getId());
             tokenRepo.save(token);
             user.setPasswordHash(token.getTokenCode());
-            user.setPasswordSalt(null);
+            // user.setPasswordSalt(null);
         }else {
             user = new User();
             user.setId(-1);
         }
 
         return user;
-
     }
+
     private static String generateRandomToken() {
         SecureRandom random = new SecureRandom();
         byte[] tokenValue = new byte[4];
