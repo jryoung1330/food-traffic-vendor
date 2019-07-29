@@ -12,6 +12,6 @@ public interface FoodTruckRepo extends JpaRepository<FoodTruck, Long> {
 
     List<FoodTruck> findAllByCityAndState(String city, String state);
     List<FoodTruck> findAllByZipCode(Integer zipCode);
-    Optional<FoodTruck> findByName(String name);
+    List<FoodTruck> findAllByNameIgnoreCaseContaining(String name);
     boolean existsByNameAndCompany(String name, String company);
 }

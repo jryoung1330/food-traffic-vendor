@@ -35,9 +35,8 @@ public class FoodTruckService {
         return optionalFoodTruck.isPresent() ? optionalFoodTruck.get() : null;
     }
 
-    public FoodTruck getFoodTruck(String name) {
-        Optional<FoodTruck> optionalFoodTruck = foodTruckRepo.findByName(name);
-        return optionalFoodTruck.isPresent() ? optionalFoodTruck.get() : null;
+    public List<FoodTruck> getAllFoodTrucks(String name) {
+        return foodTruckRepo.findAllByNameIgnoreCaseContaining(name);
     }
 
     public FoodTruck createFoodTruck(FoodTruck foodTruck){
