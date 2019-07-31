@@ -1,11 +1,10 @@
-package com.lococator.repository;
+package com.lococater.repository;
 
-import com.lococator.entity.FoodTruck;
+import com.lococater.entity.FoodTruck;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface FoodTruckRepo extends JpaRepository<FoodTruck, Long> {

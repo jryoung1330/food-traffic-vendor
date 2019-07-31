@@ -1,7 +1,7 @@
-package com.lococator.service;
+package com.lococater.service;
 
-import com.lococator.entity.FoodTruck;
-import com.lococator.repository.FoodTruckRepo;
+import com.lococater.entity.FoodTruck;
+import com.lococater.repository.FoodTruckRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

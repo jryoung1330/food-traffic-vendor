@@ -1,4 +1,4 @@
-package com.lococator.entity;
+package com.lococater.entity;
 
 
 import javax.persistence.*;
@@ -63,6 +63,9 @@ public class FoodTruck {
 
     @Column(name = "DESCRIPTION")
     private String description;
+
+    @Column(name = "STATUS")
+    private String status;
 
     public Long getId() {
         return id;
@@ -160,6 +163,14 @@ public class FoodTruck {
         this.description = description;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "FoodTruck{" +
@@ -175,6 +186,7 @@ public class FoodTruck {
                 ", zipCode=" + zipCode +
                 ", locationDetails='" + locationDetails + '\'' +
                 ", description='" + description + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

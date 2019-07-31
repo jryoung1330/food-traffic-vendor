@@ -1,7 +1,7 @@
-package com.lococator.controller;
+package com.lococater.controller;
 
-import com.lococator.entity.FoodTruck;
-import com.lococator.service.FoodTruckService;
+import com.lococater.entity.FoodTruck;
+import com.lococater.service.FoodTruckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
