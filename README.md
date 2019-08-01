@@ -1,1 +1,1 @@
-# lococator-food-truck
+# lococater-food-truck
