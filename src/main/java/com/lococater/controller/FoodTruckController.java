@@ -19,21 +19,16 @@ public class FoodTruckController {
         this.foodTruckService = foodTruckService;
     }
 
-    @GetMapping("/")
-    public List<FoodTruck> getFoodTrucks() {
-        return foodTruckService.getAllFoodTrucks();
-    }
-
     @GetMapping("")
-    public List<FoodTruck> getFoodTrucks(@RequestParam(required = false) Integer zipcode,
+    public List<FoodTruck> getFoodTrucks(@RequestParam(required = false, name = "zip-code") Integer zipCode,
                                          @RequestParam(required = false) String city,
                                          @RequestParam(required = false) String state,
                                          @RequestParam(required = false) String name) {
 
-        if(zipcode != null) return foodTruckService.getAllFoodTrucks(zipcode);
+        if(zipCode != null) return foodTruckService.getAllFoodTrucks(zipCode);
         if(city != null && state != null) return foodTruckService.getAllFoodTrucks(city, state);
         if(name != null) return foodTruckService.getAllFoodTrucks(name);
-        return null;
+        return foodTruckService.getAllFoodTrucks();
     }
 
     @GetMapping("/{id}")
