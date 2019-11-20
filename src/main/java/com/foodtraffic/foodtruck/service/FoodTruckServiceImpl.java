@@ -3,6 +3,7 @@ package com.foodtraffic.foodtruck.service;
 import com.foodtraffic.client.UserClient;
 import com.foodtraffic.foodtruck.entity.Employee;
 import com.foodtraffic.foodtruck.entity.FoodTruck;
+import com.foodtraffic.foodtruck.entity.FoodTruckStatus;
 import com.foodtraffic.foodtruck.repository.FoodTruckRepo;
 import com.foodtraffic.model.dto.FoodTruckDto;
 import com.foodtraffic.model.dto.UserDto;
@@ -73,10 +74,10 @@ public class FoodTruckServiceImpl implements FoodTruckService {
 
             // create food truck
             foodTruck.setId(0L);
-            foodTruck.setStatus(2); // TODO: change to food truck status enum
+            foodTruck.setStatus(FoodTruckStatus.HOLD.getStatusNum());
             foodTruck = foodTruckRepo.saveAndFlush(foodTruck);
 
-            // TODO: make request to the user service
+            // TODO: make request to the employee service
             // make requesting user the owner
             Employee employee = new Employee();
             employee.setUserId(user.getId());
