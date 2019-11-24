@@ -1,9 +1,8 @@
 package com.foodtraffic.foodtruck.service;
 
-import com.foodtraffic.client.UserClient;
 import com.foodtraffic.foodtruck.entity.Employee;
-import com.foodtraffic.foodtruck.repository.EmployeeRepo;
-import com.foodtraffic.foodtruck.repository.FoodTruckRepo;
+import com.foodtraffic.foodtruck.repository.EmployeeRepository;
+import com.foodtraffic.foodtruck.repository.FoodTruckRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,13 +12,10 @@ import org.springframework.web.server.ResponseStatusException;
 public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
-    EmployeeRepo employeeRepo;
+    EmployeeRepository employeeRepo;
 
     @Autowired
-    FoodTruckRepo foodTruckRepo;
-
-    @Autowired
-    UserClient userClient;
+    FoodTruckRepository foodTruckRepo;
 
     public Employee createEmployee(Long id, Employee employee) {
         if(foodTruckRepo.existsById(id)

@@ -4,13 +4,9 @@ import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.anyObject;
 
-import com.foodtraffic.client.UserClient;
 import com.foodtraffic.foodtruck.entity.FoodTruck;
-import com.foodtraffic.foodtruck.repository.FoodTruckRepo;
-import com.foodtraffic.foodtruck.service.EmployeeService;
-import com.foodtraffic.foodtruck.service.FoodTruckServiceImpl;
+import com.foodtraffic.foodtruck.repository.FoodTruckRepository;
 import com.foodtraffic.model.dto.FoodTruckDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +25,7 @@ import java.util.List;
 public class FoodTruckServiceGetListTest {
 
     @Mock
-    FoodTruckRepo foodTruckRepo;
+    FoodTruckRepository foodTruckRepo;
 
     @Spy
     ModelMapper modelMapper = new ModelMapper();

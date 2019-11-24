@@ -7,9 +7,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FoodTruckRepo extends JpaRepository<FoodTruck, Long> {
+public interface FoodTruckRepository extends JpaRepository<FoodTruck, Long> {
 
     List<FoodTruck> findAllByCityAndState(String city, String state);
+
     List<FoodTruck> findAllByZipCode(Integer zipCode);
+
     List<FoodTruck> findAllByDisplayNameIgnoreCaseContaining(String name);
+
+    boolean existsByFoodTruckName(String foodTruckName);
 }

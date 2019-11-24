@@ -1,12 +1,16 @@
 package com.foodtraffic.foodtruck.service;
 
+import com.foodtraffic.client.EmployeeClient;
 import com.foodtraffic.client.UserClient;
-import com.foodtraffic.foodtruck.entity.Employee;
 import com.foodtraffic.foodtruck.entity.FoodTruck;
 import com.foodtraffic.foodtruck.entity.FoodTruckStatus;
-import com.foodtraffic.foodtruck.repository.FoodTruckRepo;
+import com.foodtraffic.foodtruck.repository.FoodTruckRepository;
 import com.foodtraffic.model.dto.FoodTruckDto;
 import com.foodtraffic.model.dto.UserDto;
+import com.foodtraffic.model.request.EmployeeRequest;
+import com.foodtraffic.model.response.ErrorResponse;
+import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +18,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class FoodTruckServiceImpl implements FoodTruckService {
 
     @Autowired
-    FoodTruckRepo foodTruckRepo;
+    FoodTruckRepository foodTruckRepo;
 
     @Autowired
     EmployeeService employeeService;
 
     @Autowired
     UserClient userClient;
+
+    @Autowired
+    EmployeeClient employeeClient;
 
     @Autowired
     ModelMapper modelMapper;
@@ -67,7 +76,13 @@ public class FoodTruckServiceImpl implements FoodTruckService {
     @Override
     public FoodTruckDto createFoodTruck(FoodTruck foodTruck, String accessToken){
         // check user access
-        UserDto user = userClient.checkAccessHeader(accessToken);
+        UserDto user;
+        try {
+            user = userClient.checkAccessHeader(accessToken);
+        } catch (FeignException e) {
+            log.error(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.valueOf(e.status()), ErrorResponse.extractErrorMessage(e.getMessage()));
+        }
 
         // validate request
         if(validateCreateRequest(foodTruck)) {
@@ -77,15 +92,7 @@ public class FoodTruckServiceImpl implements FoodTruckService {
             foodTruck.setStatus(FoodTruckStatus.HOLD.getStatusNum());
             foodTruck = foodTruckRepo.saveAndFlush(foodTruck);
 
-            // TODO: make request to the employee service
-            // make requesting user the owner
-            Employee employee = new Employee();
-            employee.setUserId(user.getId());
-            employee.setOwner(true);
-            employee.setAdmin(true);
-            employee.setAssociate(true);
-
-            employeeService.createEmployee(foodTruck.getId(), employee);
+            createOwner(foodTruck.getId(), user.getId());
 
             return modelMapper.map(foodTruck, FoodTruckDto.class);
         } else {
@@ -104,13 +111,42 @@ public class FoodTruckServiceImpl implements FoodTruckService {
         }
     }
 
+    @Override
+    public boolean checkFoodTruckExists(String foodTruckName) {
+        return foodTruckRepo.existsByFoodTruckName(foodTruckName);
+    }
+
     private boolean validateCreateRequest(FoodTruck foodTruck){
-        return (foodTruck.getFoodTruckName().length() <= 25
-                && foodTruck.getDisplayName().length() <= 100
-                && foodTruck.getCompany().length() <= 100
-                && foodTruck.getCity() != null
-                && foodTruck.getState() != null
-                && foodTruck.getDescription() != null);
+        try {
+            return (foodTruck.getFoodTruckName().matches("[a-zA-Z0-9_]+")
+                    && foodTruck.getFoodTruckName().length() >= 4
+                    && foodTruck.getFoodTruckName().length() <= 25
+                    && foodTruckRepo.existsByFoodTruckName(foodTruck.getFoodTruckName())
+                    && foodTruck.getDisplayName().length() <= 100
+                    && foodTruck.getCity() != null
+                    && foodTruck.getState() != null
+                    && foodTruck.getDescription().length() > 0
+                    && foodTruck.getDescription().length() <= 300);
+        } catch (NullPointerException e) {
+            // catch null values, will return false here
+            // but throw exception (Bad Request) later
+        }
+        return false;
+    }
+
+    private void createOwner(Long foodTruckId, Long userId) {
+        EmployeeRequest employee = new EmployeeRequest();
+        employee.setUserId(userId);
+        employee.setOwner(true);
+        employee.setAdmin(true);
+        employee.setAssociate(true);
+
+        try {
+            employeeClient.createEmployee(foodTruckId, employee);
+        } catch (FeignException e) {
+            log.error(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.valueOf(e.status()), ErrorResponse.extractErrorMessage(e.getMessage()));
+        }
     }
 
     private String validateUpdateRequest(FoodTruck foodTruck) {

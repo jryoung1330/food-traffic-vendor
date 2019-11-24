@@ -6,6 +6,7 @@ import com.foodtraffic.foodtruck.service.FoodTruckService;
 import com.foodtraffic.model.dto.FoodTruckDto;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +22,9 @@ public class FoodTruckController {
 
     @GetMapping("")
     public List<FoodTruckDto> getFoodTrucks(@RequestParam(required = false, name = "zip-code") Integer zipCode,
-                                         @RequestParam(required = false) String city,
-                                         @RequestParam(required = false) String state,
-                                         @RequestParam(required = false) String name) {
+                                                           @RequestParam(required = false) String city,
+                                                           @RequestParam(required = false) String state,
+                                                           @RequestParam(required = false) String name) {
         return foodTruckService.getAllFoodTrucks(name, city, state, zipCode);
     }
 
@@ -32,7 +33,13 @@ public class FoodTruckController {
         return foodTruckService.getFoodTruck(id);
     }
 
+    @GetMapping("/check-food-truck")
+    public boolean checkFoodTruck(@RequestParam(name = "food-truck-name") String foodTruckName) {
+        return  foodTruckService.checkFoodTruckExists(foodTruckName);
+    }
+
     @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
     public FoodTruckDto createFoodTruck(@RequestBody FoodTruck foodTruck, @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
         return foodTruckService.createFoodTruck(foodTruck, accessToken);
     }
