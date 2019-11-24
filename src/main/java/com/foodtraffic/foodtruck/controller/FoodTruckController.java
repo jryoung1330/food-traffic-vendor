@@ -14,7 +14,7 @@ import java.util.List;
 @CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @Api(tags = "Food Truck", description = " ")
-@RequestMapping("/foodtrucks")
+@RequestMapping("/food-trucks")
 public class FoodTruckController {
 
     @Autowired
