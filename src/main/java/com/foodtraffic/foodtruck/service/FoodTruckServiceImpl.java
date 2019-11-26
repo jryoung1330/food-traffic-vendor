@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,9 +27,6 @@ public class FoodTruckServiceImpl implements FoodTruckService {
 
     @Autowired
     FoodTruckRepository foodTruckRepo;
-
-    @Autowired
-    EmployeeService employeeService;
 
     @Autowired
     UserClient userClient;
@@ -55,20 +51,8 @@ public class FoodTruckServiceImpl implements FoodTruckService {
         return modelMapper.map(foodTrucks, new TypeToken<List<FoodTruckDto>>(){}.getType());
     }
 
-    public List<FoodTruck> getAllFoodTrucks(String name) {
-        return foodTruckRepo.findAllByDisplayNameIgnoreCaseContaining(name);
-    }
-
-    public List<FoodTruck> getAllFoodTrucks(Integer zipCode) {
-        return foodTruckRepo.findAllByZipCode(zipCode);
-    }
-
-    public List<FoodTruck> getAllFoodTrucks(String city, String state) {
-        return foodTruckRepo.findAllByCityAndState(city, state);
-    }
-
     @Override
-    public FoodTruckDto getFoodTruck(Long id) {
+    public FoodTruckDto getFoodTruck(long id) {
         Optional<FoodTruck> optionalFoodTruck = foodTruckRepo.findById(id);
         return optionalFoodTruck.isPresent() ? modelMapper.map(optionalFoodTruck.get(), FoodTruckDto.class) : null;
     }
@@ -112,8 +96,30 @@ public class FoodTruckServiceImpl implements FoodTruckService {
     }
 
     @Override
-    public boolean checkFoodTruckExists(String foodTruckName) {
-        return foodTruckRepo.existsByFoodTruckName(foodTruckName);
+    public boolean checkFoodTruckExists(String foodTruckName, long id) {
+        if (foodTruckName != null) {
+            return foodTruckRepo.existsByFoodTruckName(foodTruckName);
+        } else if (id > 0) {
+            return foodTruckRepo.existsById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Food Truck Name or Id is required");
+        }
+    }
+
+    /*
+     * helper methods
+     */
+
+    public List<FoodTruck> getAllFoodTrucks(String name) {
+        return foodTruckRepo.findAllByDisplayNameIgnoreCaseContaining(name);
+    }
+
+    public List<FoodTruck> getAllFoodTrucks(Integer zipCode) {
+        return foodTruckRepo.findAllByZipCode(zipCode);
+    }
+
+    public List<FoodTruck> getAllFoodTrucks(String city, String state) {
+        return foodTruckRepo.findAllByCityAndState(city, state);
     }
 
     private boolean validateCreateRequest(FoodTruck foodTruck){
@@ -134,7 +140,7 @@ public class FoodTruckServiceImpl implements FoodTruckService {
         return false;
     }
 
-    private void createOwner(Long foodTruckId, Long userId) {
+    private void createOwner(long foodTruckId, long userId) {
         EmployeeRequest employee = new EmployeeRequest();
         employee.setUserId(userId);
         employee.setOwner(true);

@@ -6,14 +6,9 @@ import com.foodtraffic.model.dto.FoodTruckDto;
 import java.util.List;
 
 public interface FoodTruckService {
-
     List<FoodTruckDto> getAllFoodTrucks(String name, String city, String state, Integer zipCode);
-
-    FoodTruckDto getFoodTruck(Long id);
-
+    FoodTruckDto getFoodTruck(long id);
     FoodTruckDto createFoodTruck(FoodTruck foodTruck, String accessToken);
-
     FoodTruckDto updateFoodTruck(FoodTruck foodTruck);
-
-    boolean checkFoodTruckExists(String foodTruckName);
+    boolean checkFoodTruckExists(String foodTruckName, long id);
 }

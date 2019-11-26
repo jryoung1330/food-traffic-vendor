@@ -34,8 +34,8 @@ public class FoodTruckController {
     }
 
     @GetMapping("/check-food-truck")
-    public boolean checkFoodTruck(@RequestParam(name = "food-truck-name") String foodTruckName) {
-        return  foodTruckService.checkFoodTruckExists(foodTruckName);
+    public boolean checkFoodTruck(@RequestParam(name = "food-truck-name", required = false) String foodTruckName, @RequestParam(name = "id", required = false,  defaultValue = "0") Long id) {
+        return  foodTruckService.checkFoodTruckExists(foodTruckName, id);
     }
 
     @PostMapping("")
