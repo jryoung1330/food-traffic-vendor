@@ -1,12 +1,11 @@
 package com.foodtraffic.foodtruck.service;
 
-import com.foodtraffic.client.EmployeeClient;
-import com.foodtraffic.client.UserClient;
-import com.foodtraffic.foodtruck.entity.FoodTruck;
-import com.foodtraffic.foodtruck.repository.FoodTruckRepository;
-import com.foodtraffic.model.dto.EmployeeDto;
-import com.foodtraffic.model.dto.FoodTruckDto;
-import com.foodtraffic.model.dto.UserDto;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,9 +16,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.*;
+import com.foodtraffic.client.EmployeeClient;
+import com.foodtraffic.client.UserClient;
+import com.foodtraffic.foodtruck.entity.FoodTruck;
+import com.foodtraffic.foodtruck.repository.FoodTruckRepository;
+import com.foodtraffic.model.dto.EmployeeDto;
+import com.foodtraffic.model.dto.FoodTruckDto;
+import com.foodtraffic.model.dto.UserDto;
 
 @SpringBootTest
 public class FoodTruckServiceCreateFoodTruckTest {

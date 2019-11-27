@@ -1,5 +1,15 @@
 package com.foodtraffic.foodtruck.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.foodtraffic.client.EmployeeClient;
 import com.foodtraffic.client.UserClient;
 import com.foodtraffic.foodtruck.entity.FoodTruck;
@@ -9,44 +19,34 @@ import com.foodtraffic.model.dto.FoodTruckDto;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.model.request.EmployeeRequest;
 import com.foodtraffic.model.response.ErrorResponse;
-import feign.FeignException;
-import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
+import feign.FeignException;
 
 @Service
-@Slf4j
 public class FoodTruckServiceImpl implements FoodTruckService {
 
     @Autowired
-    FoodTruckRepository foodTruckRepo;
+    private FoodTruckRepository foodTruckRepo;
 
     @Autowired
-    UserClient userClient;
+    private UserClient userClient;
 
     @Autowired
-    EmployeeClient employeeClient;
+    private EmployeeClient employeeClient;
 
     @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @Override
     public List<FoodTruckDto> getAllFoodTrucks(String name, String city, String state, Integer zipCode) {
         String params = validateGetRequest(name, city, state, zipCode);
+        
         List<FoodTruck> foodTrucks;
-
         switch(params){
             case "name": foodTrucks = getAllFoodTrucks(name); break;
             case "citystate": foodTrucks = getAllFoodTrucks(city, state); break;
             case "zip code": foodTrucks = getAllFoodTrucks(zipCode); break;
-            default: throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            default: throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid combination of parameters");
         }
         return modelMapper.map(foodTrucks, new TypeToken<List<FoodTruckDto>>(){}.getType());
     }
@@ -60,19 +60,14 @@ public class FoodTruckServiceImpl implements FoodTruckService {
     @Override
     public FoodTruckDto createFoodTruck(FoodTruck foodTruck, String accessToken){
         // check user access
-        UserDto user;
-        try {
-            user = userClient.checkAccessHeader(accessToken);
-        } catch (FeignException e) {
-            log.error(e.getMessage());
-            throw new ResponseStatusException(HttpStatus.valueOf(e.status()), ErrorResponse.extractErrorMessage(e.getMessage()));
-        }
+        UserDto user = getUser(accessToken);
 
         // validate request
         if(validateCreateRequest(foodTruck)) {
 
             // create food truck
             foodTruck.setId(0L);
+            foodTruck.setFoodTruckName(foodTruck.getFoodTruckName().toLowerCase());
             foodTruck.setStatus(FoodTruckStatus.HOLD.getStatusNum());
             foodTruck = foodTruckRepo.saveAndFlush(foodTruck);
 
@@ -121,6 +116,14 @@ public class FoodTruckServiceImpl implements FoodTruckService {
     public List<FoodTruck> getAllFoodTrucks(String city, String state) {
         return foodTruckRepo.findAllByCityAndState(city, state);
     }
+    
+    private UserDto getUser(String accessToken) {
+        try {
+            return userClient.checkAccessHeader(accessToken);
+        } catch (FeignException e) {
+            throw ErrorResponse.responseException(e.status(), e.getMessage());
+        }
+    }
 
     private boolean validateCreateRequest(FoodTruck foodTruck){
         try {
@@ -134,10 +137,9 @@ public class FoodTruckServiceImpl implements FoodTruckService {
                     && foodTruck.getDescription().length() > 0
                     && foodTruck.getDescription().length() <= 300);
         } catch (NullPointerException e) {
-            // catch null values, will return false here
-            // but throw exception (Bad Request) later
+        	return false;
         }
-        return false;
+        
     }
 
     private void createOwner(long foodTruckId, long userId) {
@@ -150,8 +152,7 @@ public class FoodTruckServiceImpl implements FoodTruckService {
         try {
             employeeClient.createEmployee(foodTruckId, employee);
         } catch (FeignException e) {
-            log.error(e.getMessage());
-            throw new ResponseStatusException(HttpStatus.valueOf(e.status()), ErrorResponse.extractErrorMessage(e.getMessage()));
+            throw ErrorResponse.responseException(e.status(), e.getMessage());
         }
     }
 

@@ -13,14 +13,14 @@ import java.util.List;
 
 @CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
-@Api(tags = "Food Truck", description = " ")
+@Api(tags = "Food Truck")
 @RequestMapping("/food-trucks")
 public class FoodTruckController {
 
     @Autowired
     FoodTruckService foodTruckService;
 
-    @GetMapping("")
+    @GetMapping
     public List<FoodTruckDto> getFoodTrucks(@RequestParam(required = false, name = "zip-code") Integer zipCode,
                                                            @RequestParam(required = false) String city,
                                                            @RequestParam(required = false) String state,
@@ -38,7 +38,7 @@ public class FoodTruckController {
         return  foodTruckService.checkFoodTruckExists(foodTruckName, id);
     }
 
-    @PostMapping("")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FoodTruckDto createFoodTruck(@RequestBody FoodTruck foodTruck, @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
         return foodTruckService.createFoodTruck(foodTruck, accessToken);
