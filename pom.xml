@@ -23,7 +23,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.foodtraffic.foodtruck.Application</mainClass>
+                            <mainClass>com.foodtraffic.vendor.Application</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -131,11 +131,11 @@
 
         <!-- ft models and clients -->
         <dependency>
-            <groupId>com.foodtraffic</groupId>
-            <artifactId>ft-lib</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/ft-lib-1.0.jar</systemPath>
-        </dependency>
+			<groupId>com.foodtraffic</groupId>
+			<artifactId>ft-lib</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/resources/ft-lib-1.0.jar</systemPath>
+		</dependency>
     </dependencies>
 </project>

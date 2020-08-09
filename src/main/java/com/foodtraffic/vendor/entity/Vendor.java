@@ -1,25 +1,36 @@
-package com.foodtraffic.foodtruck.entity;
+package com.foodtraffic.vendor.entity;
 
-import lombok.Data;
+import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import lombok.Data;
+
 @Entity
-@Table(name="FOOD_TRUCK")
+@Table(name="VENDOR")
 @Data
-public class FoodTruck {
+public class Vendor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="FOODTRUCKID")
+    @Column(name="VENDORID")
     private Long id;
 
-    @Column(name="FOOD_TRUCK_NAME")
+    @Column(name="USER_NAME")
     @NotNull
     @Size(min = 4, max = 25)
-    private String foodTruckName;
+    private String userName;
 
     @Column(name="DISPLAY_NAME")
     @NotNull
@@ -68,5 +79,17 @@ public class FoodTruck {
     private String description;
 
     @Column(name = "STATUS")
-    private Integer status;
+    private String status;
+
+    @Column(name = "OWNER")
+    @NotNull
+    private Long owner;
+    
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+        name = "VENDOR_TAG",
+        joinColumns = { @JoinColumn(name = "VENDORID") },
+        inverseJoinColumns = { @JoinColumn(name = "TAGID") }
+    )
+    private List<Tag> tags;
 }

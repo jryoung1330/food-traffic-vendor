@@ -1,4 +1,4 @@
-package com.foodtraffic.foodtruck.service;
+package com.foodtraffic.vendor.service;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.foodtraffic.model.dto.VendorDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,17 +19,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.foodtraffic.client.EmployeeClient;
 import com.foodtraffic.client.UserClient;
-import com.foodtraffic.foodtruck.entity.FoodTruck;
-import com.foodtraffic.foodtruck.repository.FoodTruckRepository;
+import com.foodtraffic.vendor.entity.Vendor;
+import com.foodtraffic.vendor.repository.VendorRepository;
 import com.foodtraffic.model.dto.EmployeeDto;
-import com.foodtraffic.model.dto.FoodTruckDto;
 import com.foodtraffic.model.dto.UserDto;
 
 @SpringBootTest
 public class FoodTruckServiceCreateFoodTruckTest {
 
     @Mock
-    FoodTruckRepository foodTruckRepo;
+    VendorRepository vendorRepo;
 
     @Mock
     UserClient userClient;
@@ -40,16 +40,16 @@ public class FoodTruckServiceCreateFoodTruckTest {
     ModelMapper modelMapper = new ModelMapper();
 
     @InjectMocks
-    FoodTruckServiceImpl foodTruckService;
+    VendorServiceImpl foodTruckService;
 
-    FoodTruck foodTruck;
+    Vendor foodTruck;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        foodTruck = new FoodTruck();
+        foodTruck = new Vendor();
         foodTruck.setId((long) 0);
-        foodTruck.setFoodTruckName("mockfoodtruck");
+        foodTruck.setUserName("mockfoodtruck");
         foodTruck.setDisplayName("Mock Food Truck");
         foodTruck.setCompany("Test LLC");
         foodTruck.setDescription("Test test test");
@@ -59,45 +59,45 @@ public class FoodTruckServiceCreateFoodTruckTest {
         foodTruck.setLongitude(0.0);
         foodTruck.setLatitude(0.0);
         when(userClient.checkAccessHeader(anyString())).thenReturn(mockUser());
-        when(foodTruckRepo.existsByFoodTruckName(anyString())).thenReturn(true);
-        when(foodTruckRepo.saveAndFlush(anyObject())).thenReturn(mockFoodTruck());
+        when(vendorRepo.existsByUserName(anyString())).thenReturn(true);
+        when(vendorRepo.saveAndFlush(anyObject())).thenReturn(mockFoodTruck());
         when(employeeClient.createEmployee(anyObject(), anyObject())).thenReturn(mockEmployee());
     }
 
     @Test
     public void givenValidRequest_whenCreateFoodTruck_returnFoodTruck() {
-        FoodTruckDto foodTruck = foodTruckService.createFoodTruck(mockFoodTruck(), "test");
+        VendorDto foodTruck = foodTruckService.createVendor(mockFoodTruck(), "test");
         assertNotNull(foodTruck);
     }
 
     @Test
     public void givenNullFoodTruckName_whenCreateFoodTruck_throwException() {
-        foodTruck.setFoodTruckName(null);
-        assertThrows(ResponseStatusException.class, ()->foodTruckService.createFoodTruck(foodTruck, "test"));
+        foodTruck.setUserName(null);
+        assertThrows(ResponseStatusException.class, ()->foodTruckService.createVendor(foodTruck, "test"));
     }
 
     @Test
     public void givenInvalidFoodTruckName_whenCreateFoodTruck_throwException() {
-        foodTruck.setFoodTruckName("mock foodtruck");
-        assertThrows(ResponseStatusException.class, ()->foodTruckService.createFoodTruck(foodTruck, "test"));
+        foodTruck.setUserName("mock vendor");
+        assertThrows(ResponseStatusException.class, ()->foodTruckService.createVendor(foodTruck, "test"));
     }
 
     @Test
     public void givenFoodTruckLengthLT4_whenCreateFoodTruck_throwException() {
-        foodTruck.setFoodTruckName("moc");
-        assertThrows(ResponseStatusException.class, ()->foodTruckService.createFoodTruck(foodTruck, "test"));
+        foodTruck.setUserName("moc");
+        assertThrows(ResponseStatusException.class, ()->foodTruckService.createVendor(foodTruck, "test"));
     }
 
     @Test
     public void givenFoodTruckLengthGT25_whenCreateFoodTruck_throwException() {
-        foodTruck.setFoodTruckName("thisnameislongerthantwentyfivecharacters");
-        assertThrows(ResponseStatusException.class, ()->foodTruckService.createFoodTruck(foodTruck, "test"));
+        foodTruck.setUserName("thisnameislongerthantwentyfivecharacters");
+        assertThrows(ResponseStatusException.class, ()->foodTruckService.createVendor(foodTruck, "test"));
     }
 
     @Test
     public void givenFoodTruckNameAlreadyExists_whenCreateFoodTruck_throwException() {
-        when(foodTruckRepo.existsByFoodTruckName(anyString())).thenReturn(false);
-        assertThrows(ResponseStatusException.class, ()->foodTruckService.createFoodTruck(foodTruck, "test"));
+        when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
+        assertThrows(ResponseStatusException.class, ()->foodTruckService.createVendor(foodTruck, "test"));
     }
 
     private UserDto mockUser() {
@@ -116,10 +116,10 @@ public class FoodTruckServiceCreateFoodTruckTest {
         return employee;
     }
 
-    private FoodTruck mockFoodTruck() {
-        FoodTruck mockFoodTruck = new FoodTruck();
+    private Vendor mockFoodTruck() {
+        Vendor mockFoodTruck = new Vendor();
         mockFoodTruck.setId((long) 0);
-        mockFoodTruck.setFoodTruckName("mockfoodtruck");
+        mockFoodTruck.setUserName("mockfoodtruck");
         mockFoodTruck.setDisplayName("Mock Food Truck");
         mockFoodTruck.setCompany("Test LLC");
         mockFoodTruck.setDescription("Test test test");

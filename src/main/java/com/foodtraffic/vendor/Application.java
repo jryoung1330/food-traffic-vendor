@@ -1,4 +1,4 @@
-package com.foodtraffic.foodtruck;
+package com.foodtraffic.vendor;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
