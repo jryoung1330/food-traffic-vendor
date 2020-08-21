@@ -1,2 +1,2 @@
 # FT Food Truck
-Service for food trucks
+Microservice for vendors (food trucks)
