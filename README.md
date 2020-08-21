@@ -1,2 +1,2 @@
-# FT Food Truck
+# FT Vendor
 Microservice for vendors (food trucks)
