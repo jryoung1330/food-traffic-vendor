@@ -25,7 +25,7 @@ import com.foodtraffic.model.dto.EmployeeDto;
 import com.foodtraffic.model.dto.UserDto;
 
 @SpringBootTest
-public class FoodTruckServiceCreateFoodTruckTest {
+public class FoodTruckOperationCreateFoodTruckTest {
 
     @Mock
     VendorRepository vendorRepo;
@@ -110,7 +110,6 @@ public class FoodTruckServiceCreateFoodTruckTest {
 
     private EmployeeDto mockEmployee() {
         EmployeeDto employee = new EmployeeDto();
-        employee.setOwner(true);
         employee.setAdmin(true);
         employee.setAssociate(true);
         return employee;

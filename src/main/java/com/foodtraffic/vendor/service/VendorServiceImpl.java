@@ -3,8 +3,6 @@ package com.foodtraffic.vendor.service;
 import com.foodtraffic.client.UserClient;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.model.dto.VendorDto;
-import com.foodtraffic.model.request.EmployeeRequest;
-import com.foodtraffic.model.response.ErrorResponse;
 import com.foodtraffic.util.AppUtil;
 import com.foodtraffic.vendor.entity.Vendor;
 import com.foodtraffic.vendor.entity.VendorStatus;
@@ -12,7 +10,6 @@ import com.foodtraffic.vendor.entity.employee.Employee;
 import com.foodtraffic.vendor.repository.FavoriteRepository;
 import com.foodtraffic.vendor.repository.VendorRepository;
 import com.foodtraffic.vendor.service.employee.EmployeeService;
-import feign.FeignException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +45,12 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
+    public List<VendorDto> getAllVendorsByLocation(String city, String state) {
+        List<Vendor> vendors = vendorRepo.findAllByCityAndState(city, state);
+        return modelMapper.map(vendors, new TypeToken<List<VendorDto>>(){}.getType());
+    }
+
+    @Override
     public VendorDto getVendor(final long id) {
         Optional<Vendor> optionalVendor = vendorRepo.findById(id);
         if (!optionalVendor.isPresent()) {
@@ -57,12 +60,11 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public VendorDto createVendor(Vendor vendor, final String accessToken){
+    public VendorDto createVendor(Vendor vendor, final String accessToken) {
         // check user access
         UserDto user = AppUtil.getUser(userClient, accessToken);
 
-        // validate request
-        if(validateCreateRequest(vendor)) {
+        if(isValid(vendor)) {
 
             // create vendor
             vendor.setId(0L);
@@ -79,16 +81,13 @@ public class VendorServiceImpl implements VendorService {
         }
     }
 
-    // TODO: add validation and merging
     @Override
-    public VendorDto updateVendor(Vendor vendor){
-        String errorMessage = validateUpdateRequest(vendor);
-        if(errorMessage == null) {
+    public VendorDto updateVendor(final long id, Vendor vendor, final String accessToken) {
+        UserDto user = AppUtil.getUser(userClient, accessToken);
+        if(isValid(id, vendor, user)) {
             vendor = vendorRepo.saveAndFlush(vendor);
-            return modelMapper.map(vendor, VendorDto.class);
-        } else {
-            throw new RuntimeException(errorMessage);
         }
+        return modelMapper.map(vendor, VendorDto.class);
     }
 
     @Override
@@ -104,10 +103,9 @@ public class VendorServiceImpl implements VendorService {
     
     @Override
 	public List<VendorDto> getFavoritesForUser(final String accessToken) {
-    	// check user access
-        UserDto user = AppUtil.getUser(userClient, accessToken);
-        List<Vendor> foodTrucks = vendorRepo.findAllByUserFavorites(user.getId());
-        return modelMapper.map(foodTrucks, new TypeToken<List<VendorDto>>(){}.getType());
+        UserDto user = AppUtil.getUser(userClient, "Bearer " + accessToken);
+        List<Vendor> vendors = vendorRepo.findAllByUserFavorites(user.getId());
+        return modelMapper.map(vendors, new TypeToken<List<VendorDto>>(){}.getType());
 	}
     
     @Override
@@ -120,12 +118,13 @@ public class VendorServiceImpl implements VendorService {
      * helper methods
      */
 
-    private boolean validateCreateRequest(Vendor vendor){
+    private boolean isValid(Vendor vendor){
         try {
             return (vendor.getUserName().matches("[a-zA-Z0-9_]+")
                     && vendor.getUserName().length() >= 4
                     && vendor.getUserName().length() <= 25
                     && !vendorRepo.existsByUserName(vendor.getUserName().toLowerCase())
+                    && vendor.getDisplayName().length() > 0
                     && vendor.getDisplayName().length() <= 50
                     && vendor.getCity() != null
                     && vendor.getState() != null
@@ -143,16 +142,15 @@ public class VendorServiceImpl implements VendorService {
         employeeService.createEmployee(vendorId, employee);
     }
 
-    private String validateUpdateRequest(Vendor vendor) {
-        if (vendor.getId() <= 0) return "Invalid id";
+    private boolean isValid(final long id, Vendor vendor, UserDto user) {
+        checkVendorExists(null, id);
 
-        // validate address
-        // TODO: use USPS address validation
+        if (vendor.getId() != id) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
+        } else if (!employeeService.isUserAnAdmin(id, user.getId())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        }
 
-        // get coordinates
-
-        // check if food truck exists
-
-        return null;
+        return true;
     }
 }

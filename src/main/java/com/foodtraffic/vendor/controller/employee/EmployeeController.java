@@ -19,7 +19,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @GetMapping("/vendors/{vendorId}/employees")
-    public List<EmployeeDto> getEmployeesByFoodTruck(@PathVariable(name = "vendorId") Long vendorId,
+    public List<EmployeeDto> getEmployeesByVendor(@PathVariable(name = "vendorId") Long vendorId,
                                                      @RequestParam(name = "type", defaultValue = "all") String type) {
         return employeeService.getEmployeeByVendor(vendorId, type);
     }

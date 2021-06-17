@@ -3,8 +3,7 @@ package com.foodtraffic.vendor.entity.menu;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "MENU")
@@ -14,7 +13,6 @@ public class Menu {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "MENUID")
-	@Min(0)
 	private Long id;
 
 	@Column(name = "VENDORID")
@@ -25,6 +23,6 @@ public class Menu {
 
 	@OneToMany(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "MENUID", updatable=false)
-	private Set<MenuItem> menuItems;
+	private List<MenuItem> menuItems;
 
 }

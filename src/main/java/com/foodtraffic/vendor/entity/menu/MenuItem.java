@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
 
 @Entity
 @Table(name = "MENU_ITEM")
@@ -14,7 +13,6 @@ public class MenuItem {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "MENUITEMID")
-	@Min(0)
 	private Long id;
 	
 	@Column(name = "MENUID")

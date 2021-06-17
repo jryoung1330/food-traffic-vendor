@@ -11,18 +11,22 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"}, allowCredentials="true")
 @RestController
 @Api(tags = "Vendor")
 @RequestMapping("/vendors")
 public class VendorController {
 
     @Autowired
-    VendorService vendorService;
+    private VendorService vendorService;
 
     @GetMapping
-    public List<VendorDto> getVendors(@RequestParam(required = true) String name) {
-        return vendorService.getAllVendorsByName(name);
+    public List<VendorDto> getVendors(@RequestParam(required = false) String name, @RequestParam(required = false) String city, @RequestParam(required = false)  String state) {
+        if(name != null) {
+            return vendorService.getAllVendorsByName(name);
+        } else {
+            return vendorService.getAllVendorsByLocation(city, state);
+        }
     }
 
     @GetMapping("/{id}")
@@ -40,7 +44,7 @@ public class VendorController {
     public List<VendorDto> getFavorites(@CookieValue(value = "_gid", defaultValue = "") String accessToken) {
     	return vendorService.getFavoritesForUser(accessToken);
     }
-    
+
     @GetMapping("/{id}/favorites")
     public boolean isFavorite(@PathVariable Long id,
                               @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
@@ -55,7 +59,9 @@ public class VendorController {
     }
 
     @PutMapping("/{id}")
-    public VendorDto updateVendor(@RequestBody Vendor vendor) {
-        return vendorService.updateVendor(vendor);
+    public VendorDto updateVendor(@PathVariable(name="id") Long id,
+                                  @RequestBody Vendor vendor,
+                                  @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
+        return vendorService.updateVendor(id, vendor, accessToken);
     }
 }

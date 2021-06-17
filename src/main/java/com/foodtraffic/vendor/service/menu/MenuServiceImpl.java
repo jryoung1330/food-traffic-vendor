@@ -1,12 +1,9 @@
 package com.foodtraffic.vendor.service.menu;
 
-import com.foodtraffic.client.EmployeeClient;
 import com.foodtraffic.client.UserClient;
-import com.foodtraffic.model.dto.EmployeeDto;
 import com.foodtraffic.model.dto.MenuDto;
 import com.foodtraffic.model.dto.MenuItemDto;
 import com.foodtraffic.model.dto.UserDto;
-import com.foodtraffic.vendor.entity.employee.Employee;
 import com.foodtraffic.vendor.entity.menu.Menu;
 import com.foodtraffic.vendor.entity.menu.MenuItem;
 import com.foodtraffic.vendor.repository.menu.MenuItemRepository;
@@ -14,6 +11,7 @@ import com.foodtraffic.vendor.repository.menu.MenuRepository;
 import com.foodtraffic.vendor.service.VendorService;
 import com.foodtraffic.vendor.service.employee.EmployeeService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MenuServiceImpl implements MenuService {
@@ -45,12 +42,10 @@ public class MenuServiceImpl implements MenuService {
     private ModelMapper modelMapper;
 
     @Override
-    public MenuDto getMenuByVendor(final long vendorId) {
+    public List<MenuDto> getAllMenusByVendor(final long vendorId) {
         if (vendorService.checkVendorExists(null, vendorId)) {
-            Optional<Menu> menu = menuRepo.findByVendorId(vendorId);
-            if (menu.isPresent()) {
-                return modelMapper.map(menu.get(), MenuDto.class);
-            }
+            List<Menu> menus = menuRepo.findAllByVendorId(vendorId);
+            return modelMapper.map(menus, new TypeToken<List<MenuDto>>(){}.getType());
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

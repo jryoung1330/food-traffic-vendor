@@ -1,6 +1,6 @@
 package com.foodtraffic.vendor.entity;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,5 +26,5 @@ public class Tag {
 	private String name;
 
 	@ManyToMany(mappedBy="tags")
-	private List<Vendor> foodTrucks;
+	private Set<Vendor> vendors;
 }

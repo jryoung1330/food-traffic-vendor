@@ -5,9 +5,11 @@ import com.foodtraffic.model.dto.MenuItemDto;
 import com.foodtraffic.vendor.entity.menu.Menu;
 import com.foodtraffic.vendor.entity.menu.MenuItem;
 
+import java.util.List;
+
 public interface MenuService {
 
-	MenuDto getMenuByVendor(long vendorId);
+	List<MenuDto> getAllMenusByVendor(long vendorId);
 
 	MenuDto createMenu(long vendorId, Menu menu, String accessToken);
 

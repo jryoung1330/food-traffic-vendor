@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://192.168.1.66:3000"})
+import java.util.List;
+
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"}, allowCredentials="true")
 @Api(tags = "Menu")
 @RestController
 @RequestMapping("/vendors/{vendorId}/menus")
@@ -20,8 +22,8 @@ public class MenuController {
 	private MenuService menuService;
 	
 	@GetMapping
-	public MenuDto getMenuForVendor(@PathVariable(name = "vendorId") Long vendorId) {
-		return menuService.getMenuByVendor(vendorId);
+	public List<MenuDto> getMenusForVendor(@PathVariable(name = "vendorId") Long vendorId) {
+		return menuService.getAllMenusByVendor(vendorId);
 	}
 	
 	@PostMapping
