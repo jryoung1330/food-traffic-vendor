@@ -9,11 +9,9 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-    boolean existsByUserId(long userId);
-
     List<Employee> findAllByVendorId(long vendorId);
 
     List<Employee> findAllByVendorIdAndIsAdmin(long vendorId, boolean isAdmin);
 
-    Employee findByVendorIdAndUserId(long vendorId, long userId);
+    Employee findByIdAndVendorId(long id, long vendorId);
 }

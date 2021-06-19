@@ -136,7 +136,6 @@ public class VendorServiceImpl implements VendorService {
 
     private void associateEmployee(long vendorId, long userId) {
         Employee employee = new Employee();
-        employee.setUserId(userId);
         employee.setAssociate(true);
         employee.setAdmin(true);
         employeeService.createEmployee(vendorId, employee);

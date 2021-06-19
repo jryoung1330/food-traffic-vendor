@@ -14,9 +14,6 @@ public class Employee {
     @Column(name = "EMPLOYEEID")
     private Long id;
 
-    @Column(name = "USERID")
-    private Long userId;
-
     @Column(name = "VENDORID")
     private Long vendorId;
 

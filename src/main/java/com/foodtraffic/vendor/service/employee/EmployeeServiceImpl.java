@@ -48,7 +48,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (!vendorService.checkVendorExists(null, vendorId)) {
             status = HttpStatus.NOT_FOUND;
             message = "Resource does not exist";
-        } else if (employeeRepo.existsByUserId(employee.getUserId())) {
+        } else if (employeeRepo.existsById(employee.getId())) {
             status = HttpStatus.BAD_REQUEST;
             message = "This user is already an employee!";
         } else {
@@ -61,8 +61,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public boolean isUserAnAdmin(long vendorId, long userId) {
-        Employee employee = employeeRepo.findByVendorIdAndUserId(vendorId, userId);
+    public boolean isUserAnAdmin(long vendorId, long id) {
+        Employee employee = employeeRepo.findByIdAndVendorId(id, vendorId);
         return employee.isAdmin();
     }
 }
