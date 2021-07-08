@@ -2,16 +2,16 @@ package com.foodtraffic.vendor.entity.operation;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
 @Data
 @Entity(name = "OPERATION_ITEM")
-public class OperationItem {
+public class OperationItem implements Comparable<OperationItem>{
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "OPERATIONITEMID")
     private Long id;
 
@@ -35,4 +35,9 @@ public class OperationItem {
 
     @Column(name = "CLOSE_TIME")
     private String closeTime;
+
+    @Override
+    public int compareTo(OperationItem o) {
+        return DayOfWeek.valueOf(dayOfWeek).getValue() - DayOfWeek.valueOf(o.dayOfWeek).getValue();
+    }
 }

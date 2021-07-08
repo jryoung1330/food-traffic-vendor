@@ -30,9 +30,6 @@ public class MenuItem {
 	@Column(name = "CALORIES")
 	private Integer calories;
 	
-	@Column(name = "INGREDIENTS")
-	private String ingredients;
-	
 	@Column(name = "REMARKS")
 	private String remarks;
 	

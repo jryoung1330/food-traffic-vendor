@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -102,6 +103,17 @@ public class MenuServiceImpl implements MenuService {
     public void deleteMenuItem(final long vendorId, final long menuId, final long menuItemId, final String accessToken) {
         validateRequest((menuRepo.existsByIdAndVendorId(menuId, vendorId) || menuItemRepo.existsByIdAndMenuId(menuItemId, menuId)), vendorId, accessToken);
         menuItemRepo.deleteById(menuItemId);
+    }
+
+    @Override
+    public List<MenuItemDto> getTopSellingItems(Long vendorId, String accessToken) {
+        // TODO: revise when order data is available
+        List<MenuItem> menuItems = menuItemRepo.findAllByVendorId(vendorId);
+        List<MenuItem> topThree = new ArrayList<>();
+        for(int i=0; i<3 && i<menuItems.size(); i++) {
+            topThree.add(menuItems.get(i));
+        }
+        return modelMapper.map(topThree, new TypeToken<List<MenuItemDto>>(){}.getType());
     }
 
     /*
