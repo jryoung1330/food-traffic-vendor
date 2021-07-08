@@ -23,4 +23,5 @@ public interface MenuService {
 
 	void deleteMenuItem(long vendorId, long menuId, long menuItemId, String accessToken);
 
+	List<MenuItemDto> getTopSellingItems(Long vendorId, String accessToken);
 }

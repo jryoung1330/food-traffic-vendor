@@ -50,6 +50,12 @@ public class MenuController {
                               @CookieValue(name = "_gid", defaultValue = "_gid") String accessToken) {
 		return menuService.updateMenu(vendorId, menuId, menu, accessToken);
 	}
+
+	@GetMapping("/menu-items/top-sellers")
+	public List<MenuItemDto> getTopSellers(@PathVariable(name = "vendorId") Long vendorId,
+										   @CookieValue(name = "_gid", defaultValue = "_gid") String accessToken) {
+		return menuService.getTopSellingItems(vendorId, accessToken);
+	}
 	
 	@PutMapping("/{menuId}/menu-items/{menuItemId}")
 	public MenuItemDto updateMenuItem(@PathVariable(name = "vendorId") Long vendorId,
@@ -76,5 +82,4 @@ public class MenuController {
 							   @CookieValue(name = "_gid", defaultValue = "_gid") String accessToken) {
 		menuService.deleteMenuItem(vendorId, menuId, menuItemId, accessToken);
 	}
-	
 }

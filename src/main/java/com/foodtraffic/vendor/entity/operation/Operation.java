@@ -10,6 +10,7 @@ import java.util.List;
 public class Operation {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "OPERATIONID")
     private Long id;
 

@@ -73,7 +73,7 @@ public class VendorServiceImpl implements VendorService {
             vendor.setOwner(user.getId());
             vendor = vendorRepo.saveAndFlush(vendor);
 
-            associateEmployee(vendor.getId(), user.getId());
+            associateEmployee(vendor.getId(), vendor.getOwner());
 
             return modelMapper.map(vendor, VendorDto.class);
         } else {
@@ -136,6 +136,7 @@ public class VendorServiceImpl implements VendorService {
 
     private void associateEmployee(long vendorId, long userId) {
         Employee employee = new Employee();
+        employee.setId(userId);
         employee.setAssociate(true);
         employee.setAdmin(true);
         employeeService.createEmployee(vendorId, employee);

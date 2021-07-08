@@ -52,7 +52,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             status = HttpStatus.BAD_REQUEST;
             message = "This user is already an employee!";
         } else {
-            employee.setId(0L);
             employee.setVendorId(vendorId);
             employee = employeeRepo.saveAndFlush(employee);
             return modelMapper.map(employee, EmployeeDto.class);
