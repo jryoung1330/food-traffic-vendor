@@ -1,6 +1,7 @@
 package com.foodtraffic.vendor.service;
 
 import com.foodtraffic.client.UserClient;
+import com.foodtraffic.model.dto.EmployeeDto;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.model.dto.VendorDto;
 import com.foodtraffic.util.AppUtil;
@@ -53,7 +54,7 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public VendorDto getVendor(final long id) {
         Optional<Vendor> optionalVendor = vendorRepo.findById(id);
-        if (!optionalVendor.isPresent()) {
+        if (optionalVendor.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return modelMapper.map(optionalVendor.get(), VendorDto.class);
@@ -84,7 +85,7 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public VendorDto updateVendor(final long id, Vendor vendor, final String accessToken) {
         UserDto user = AppUtil.getUser(userClient, accessToken);
-        if(isValid(id, vendor, user)) {
+        if(isValid(id, vendor.getId(), user)) {
             vendor = vendorRepo.saveAndFlush(vendor);
         }
         return modelMapper.map(vendor, VendorDto.class);
@@ -118,7 +119,7 @@ public class VendorServiceImpl implements VendorService {
      * helper methods
      */
 
-    private boolean isValid(Vendor vendor){
+    private boolean isValid(Vendor vendor) {
         try {
             return (vendor.getUserName().matches("[a-zA-Z0-9_]+")
                     && vendor.getUserName().length() >= 4
@@ -142,12 +143,13 @@ public class VendorServiceImpl implements VendorService {
         employeeService.createEmployee(vendorId, employee);
     }
 
-    private boolean isValid(final long id, Vendor vendor, UserDto user) {
+    private boolean isValid(final long id, long vendorId, UserDto user) {
         checkVendorExists(null, id);
+        EmployeeDto emp = user.getEmployee();
 
-        if (vendor.getId() != id) {
+        if (vendorId != id) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
-        } else if (!employeeService.isUserAnAdmin(id, user.getId())) {
+        } else if (emp == null || emp.getVendorId() != id || !emp.isAdmin()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }
 
