@@ -12,4 +12,5 @@ public interface EmployeeService {
     EmployeeDto createEmployee(long vendorId, Employee employee);
 
     boolean isUserAnAdmin(long vendorId, long userId);
+
 }
