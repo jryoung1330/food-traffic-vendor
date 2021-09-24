@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"}, allowCredentials="true")
 @Api(tags = "Employee")
 @RestController
 public class EmployeeController {
@@ -20,8 +20,14 @@ public class EmployeeController {
 
     @GetMapping("/vendors/{vendorId}/employees")
     public List<EmployeeDto> getEmployeesByVendor(@PathVariable(name = "vendorId") Long vendorId,
-                                                     @RequestParam(name = "type", defaultValue = "all") String type) {
+                                                  @RequestParam(name = "type", defaultValue = "all") String type) {
         return employeeService.getEmployeeByVendor(vendorId, type);
+    }
+
+    @GetMapping("/vendors/{vendorId}/employees/{userId}")
+    public boolean isAdmin(@PathVariable(name = "vendorId") Long vendorId,
+                           @PathVariable(name = "userId") Long userId) {
+        return employeeService.isUserAnAdmin(vendorId, userId);
     }
 
     @PostMapping("/vendors/{vendorId}/employees")
