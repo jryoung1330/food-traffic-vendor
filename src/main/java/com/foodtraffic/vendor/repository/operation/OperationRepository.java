@@ -13,8 +13,8 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
 
     @Query(value = "select * from OPERATION op" +
             " INNER JOIN OPERATION_ITEM oi" +
-            " on op.operationid = oi.operationid" +
-            " where op.vendorid = ?1 and oi.operation_date is null",
+            " on op.operationid = oi.operationid and oi.is_event = false" +
+            " where op.vendorid = ?1",
     nativeQuery = true)
     Optional<Operation> getHoursOfOperation(long vendorId);
 }

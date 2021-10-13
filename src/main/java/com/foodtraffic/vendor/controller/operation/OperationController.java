@@ -2,7 +2,6 @@ package com.foodtraffic.vendor.controller.operation;
 
 import com.foodtraffic.model.dto.OperationDto;
 import com.foodtraffic.model.dto.OperationItemDto;
-import com.foodtraffic.vendor.entity.operation.Operation;
 import com.foodtraffic.vendor.entity.operation.OperationItem;
 import com.foodtraffic.vendor.service.operation.OperationService;
 import io.swagger.annotations.Api;
@@ -27,6 +26,14 @@ public class OperationController {
     @PostMapping
     public OperationDto createHoursOfOperation(@PathVariable("vendorId") Long vendorId) {
         return operationService.createWeek(vendorId);
+    }
+
+    @PostMapping("/{operationId}/operation-items")
+    public OperationItemDto createEvent(@PathVariable("vendorId") Long vendorId,
+                                    @PathVariable("operationId") Long operationId,
+                                    @RequestBody OperationItem operationItem,
+                                    @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
+        return operationService.createEvent(vendorId, operationId, operationItem, accessToken);
     }
 
     @PutMapping("/{operationId}/operation-items/{operationItemId}")
