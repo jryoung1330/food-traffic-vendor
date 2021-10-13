@@ -8,6 +8,8 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"}, allowCredentials="true")
 @RestController
 @Api(tags = "Operation")
@@ -18,8 +20,8 @@ public class OperationController {
     private OperationService operationService;
 
     @GetMapping
-    public OperationDto getOperationsForVendor(@PathVariable("vendorId") Long vendorId,
-                                               @RequestParam("search") String searchKey) {
+    public List<OperationItemDto> getOperationsForVendor(@PathVariable("vendorId") Long vendorId,
+                                                         @RequestParam("search") String searchKey) {
         return operationService.getOperations(vendorId, searchKey);
     }
 

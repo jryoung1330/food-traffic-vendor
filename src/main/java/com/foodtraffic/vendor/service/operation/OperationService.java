@@ -4,9 +4,11 @@ import com.foodtraffic.model.dto.OperationDto;
 import com.foodtraffic.model.dto.OperationItemDto;
 import com.foodtraffic.vendor.entity.operation.OperationItem;
 
+import java.util.List;
+
 
 public interface OperationService {
-    OperationDto getOperations(long vendorId, String searchKey);
+    List<OperationItemDto> getOperations(Long vendorId, String searchKey);
 
     OperationDto createWeek(Long vendorId);
 

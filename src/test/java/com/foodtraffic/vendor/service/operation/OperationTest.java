@@ -2,7 +2,6 @@ package com.foodtraffic.vendor.service.operation;
 
 import com.foodtraffic.client.UserClient;
 import com.foodtraffic.model.dto.EmployeeDto;
-import com.foodtraffic.model.dto.OperationDto;
 import com.foodtraffic.model.dto.OperationItemDto;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.vendor.entity.operation.Operation;
@@ -60,10 +59,10 @@ public class OperationTest {
     public void givenSearchKeyEqualsWeek_whenGetOperations_thenReturnWeek() {
         List<OperationItem> opItems = mockWeek();
         when(operationRepo.findOneByVendorId(100L)).thenReturn(mockOperation());
-        when(operationItemRepo.findAllByOperationIdAndIsEventFalse(0)).thenReturn(opItems);
+        when(operationItemRepo.findAllByOperationIdAndIsEventFalse(100L)).thenReturn(opItems);
         when(operationItemRepo.findByOperationIdAndBetweenEventDates(anyLong(), anyObject())).thenReturn(Optional.empty());
-        OperationDto operation = operationService.getOperations(100L, "week");
-        assertEquals(7, operation.getOperationItems().size());
+        List<OperationItemDto> operations = operationService.getOperations(100L, "week");
+        assertEquals(7, operations.size());
     }
 
     @Test
@@ -71,21 +70,21 @@ public class OperationTest {
         List<OperationItem> opItems = mockWeek();
         Collections.swap(opItems, 0, 6); // swap Monday and Sunday
         when(operationRepo.findOneByVendorId(100L)).thenReturn(mockOperation());
-        when(operationItemRepo.findAllByOperationIdAndIsEventFalse(0)).thenReturn(opItems);
+        when(operationItemRepo.findAllByOperationIdAndIsEventFalse(100L)).thenReturn(opItems);
         when(operationItemRepo.findByOperationIdAndBetweenEventDates(anyLong(), anyObject())).thenReturn(Optional.empty());
-        OperationDto operation = operationService.getOperations(100L, "week");
-        assertEquals(modelMapper.map(mockWeek(), new TypeToken<List<OperationItemDto>>(){}.getType()), operation.getOperationItems());
+        List<OperationItemDto> operations = operationService.getOperations(100L, "week");
+        assertEquals(modelMapper.map(mockWeek(), new TypeToken<List<OperationItemDto>>(){}.getType()), operations);
     }
 
     @Test
     public void givenEventDuringWeek_whenGetOperations_thenReturnWeekWithEvent() {
         List<OperationItem> opItems = mockWeek();
         when(operationRepo.findOneByVendorId(100L)).thenReturn(mockOperation());
-        when(operationItemRepo.findAllByOperationIdAndIsEventFalse(0)).thenReturn(opItems);
+        when(operationItemRepo.findAllByOperationIdAndIsEventFalse(100L)).thenReturn(opItems);
         when(operationItemRepo.findByOperationIdAndBetweenEventDates(anyLong(), anyObject())).thenReturn(Optional.empty());
         when(operationItemRepo.findByOperationIdAndBetweenEventDates(anyLong(), eq(LocalDate.now()))).thenReturn(mockEvent());
-        OperationDto operation = operationService.getOperations(100L, "week");
-        assertEquals("Test Event", getEvent(operation.getOperationItems()).getEventName());
+        List<OperationItemDto> operations = operationService.getOperations(100L, "week");
+        assertEquals("Test Event", getEvent(operations).getEventName());
     }
 
     @Test
