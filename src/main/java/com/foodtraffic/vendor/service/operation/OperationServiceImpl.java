@@ -13,6 +13,7 @@ import com.foodtraffic.vendor.repository.operation.OperationRepository;
 import com.foodtraffic.vendor.service.employee.EmployeeService;
 import org.apache.logging.log4j.util.Strings;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,41 +44,29 @@ public class OperationServiceImpl implements OperationService {
     private UserClient userClient;
 
     @Override
-    public OperationDto getOperations(final long vendorId, String searchKey) {
-        Optional<Operation> operation;
+    public List<OperationItemDto> getOperations(final Long vendorId, String searchKey) {
+        List<OperationItem> opItems = new ArrayList<>();
+        Optional<Operation> option = operationRepo.findOneByVendorId(vendorId);
 
-        if("week".equals(searchKey)) {
-            operation = operationRepo.findOneByVendorId(vendorId);
-            if(operation.isPresent()) {
-                Operation op = operation.get();
-                List<OperationItem> week = operationItemRepo.findAllByOperationIdAndIsEventFalse(op.getId());
-                Collections.sort(week);
-                op.setOperationItems(applyEvents(week));
-            }
+        if(option.isPresent()) {
+            List<OperationItem> operationItems = operationItemRepo.findAllByOperationIdAndIsEventFalse(option.get().getId());
+            Collections.sort(operationItems);
 
-        } else if("3-day".equals(searchKey)) {
-            operation = operationRepo.findOneByVendorId(vendorId);
-
-            if(operation.isPresent()) {
-                Operation op = operation.get();
-                op.setOperationItems(operationItemRepo.findAllByOperationIdAndIsEventFalse(op.getId()));
-                List<OperationItem> opItems = new ArrayList<>();
-
+            if("week".equals(searchKey)) {
+                opItems = applyEvents(operationItems);
+            } else if("3-day".equals(searchKey)) {
                 for(int i=0; i<3; i++) {
                     int day = LocalDateTime.now().plusDays(i).getDayOfWeek().getValue();
-                    for(OperationItem item : operation.get().getOperationItems()) {
-                        if(DayOfWeek.valueOf(item.getDayOfWeek()).getValue() == day) {
-                            opItems.add(item);
-                        }
-                    }
+                    opItems.add(operationItems.get(day-1));
                 }
-                op.setOperationItems(opItems);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request. Check the search key and try again");
             }
         } else {
-            operation = operationRepo.findOneByVendorId(vendorId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource does not exist");
         }
 
-        return operation.map(value -> modelMapper.map(value, OperationDto.class)).orElse(null);
+        return modelMapper.map(opItems, new TypeToken<List<OperationItemDto>>(){}.getType());
     }
 
     @Override

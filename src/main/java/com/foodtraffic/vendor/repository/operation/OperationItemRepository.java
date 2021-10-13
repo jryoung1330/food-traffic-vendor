@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface OperationItemRepository extends JpaRepository<OperationItem, Long> {
     boolean existsByOperationIdAndId(Long operationId, Long operationItemId);
 
-    List<OperationItem> findAllByOperationIdAndIsEventFalse(long operationId);
+    List<OperationItem> findAllByOperationIdAndIsEventFalse(Long operationId);
 
     @Query(value = "select * from OPERATION_ITEM oi" +
             " where oi.operationid = ?1 and oi.event_start_date <= ?2 and oi.event_end_date >= ?2",
