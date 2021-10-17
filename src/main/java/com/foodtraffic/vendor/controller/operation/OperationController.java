@@ -6,8 +6,10 @@ import com.foodtraffic.vendor.entity.operation.OperationItem;
 import com.foodtraffic.vendor.service.operation.OperationService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"}, allowCredentials="true")
@@ -28,6 +30,14 @@ public class OperationController {
     @PostMapping
     public OperationDto createHoursOfOperation(@PathVariable("vendorId") Long vendorId) {
         return operationService.createWeek(vendorId);
+    }
+
+    @GetMapping("/{operationId}/operation-items")
+    public List<OperationItemDto> getEvents(@PathVariable("vendorId") Long vendorId,
+                                            @PathVariable("operationId") Long operationId,
+                                            @RequestParam("search") String searchKey,
+                                            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return operationService.getOperationItems(vendorId, operationId, searchKey, date);
     }
 
     @PostMapping("/{operationId}/operation-items")

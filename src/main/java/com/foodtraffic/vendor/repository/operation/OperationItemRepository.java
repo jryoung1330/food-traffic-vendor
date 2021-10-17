@@ -17,4 +17,16 @@ public interface OperationItemRepository extends JpaRepository<OperationItem, Lo
             " where oi.operationid = ?1 and oi.event_start_date <= ?2 and oi.event_end_date >= ?2",
             nativeQuery = true)
     Optional<OperationItem> findByOperationIdAndBetweenEventDates(long operationId, LocalDate day);
+
+    @Query(value = "select * from OPERATION_ITEM oi" +
+            " where oi.operationid = ?1 and oi.is_event = true and extract('MONTH' from oi.event_start_date) = ?2" +
+            " order by oi.event_start_date",
+            nativeQuery = true)
+    List<OperationItem> findAllEventsInMonth(long operationId, int month);
+
+    @Query(value = "select * from OPERATION_ITEM oi" +
+            " where oi.operationid = ?1 and oi.is_event = true and oi.event_start_date >= ?2" +
+            " order by oi.event_start_date",
+            nativeQuery = true)
+    List<OperationItem> findAllUpcomingEvents(long operationId, LocalDate startDate);
 }

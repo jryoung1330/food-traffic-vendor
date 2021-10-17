@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 
 @Service
@@ -91,6 +92,25 @@ public class OperationServiceImpl implements OperationService {
         }
     }
 
+    public List<OperationItemDto> getEventsForMonth(final Long vendorId, Long operationId, String month) {
+        Month searchKey;
+        try {
+            searchKey = Month.of(Integer.parseInt(month));
+        } catch (NumberFormatException e) {
+            searchKey = Month.valueOf(month.toUpperCase());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
+        }
+
+        List<OperationItem> events = operationItemRepo.findAllEventsInMonth(operationId, searchKey.getValue());
+        return modelMapper.map(events, new TypeToken<List<OperationItemDto>>(){}.getType());
+    }
+
+    public List<OperationItemDto> getUpcomingEvents(final Long vendorId, final Long operationId, LocalDate startDate) {
+        List<OperationItem> events = operationItemRepo.findAllUpcomingEvents(operationId, startDate);
+        return modelMapper.map(events, new TypeToken<List<OperationItemDto>>(){}.getType());
+    }
+
     @Override
     public OperationItemDto updateOperationItem(Long vendorId, Long operationId, Long operationItemId,
                                                 @Valid OperationItem operationItem, String accessToken) {
@@ -136,6 +156,17 @@ public class OperationServiceImpl implements OperationService {
         opItem.setOperationId(operationId);
         opItem = operationItemRepo.save(opItem);
         return modelMapper.map(opItem, OperationItemDto.class);
+    }
+
+    @Override
+    public List<OperationItemDto> getOperationItems(Long vendorId, Long operationId, String searchKey, LocalDate date) {
+        List<OperationItemDto> returnList = null;
+        if(searchKey.equals("month")) {
+            returnList = getEventsForMonth(vendorId, operationId, date.getMonth().name());
+        } else if(searchKey.equals("upcoming")) {
+            returnList = getUpcomingEvents(vendorId, operationId, date);
+        }
+        return returnList;
     }
 
     private boolean isAdmin(Long vendorId, String accessToken) {
