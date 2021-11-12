@@ -132,6 +132,7 @@ public class OperationServiceImpl implements OperationService {
         }
 
         opItem.setId(null);
+
         opItem.setDayOfWeek(null);
         opItem.setEvent(true);
         opItem.setVendorId(vendorId);

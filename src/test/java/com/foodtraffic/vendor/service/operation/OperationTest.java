@@ -9,14 +9,14 @@ import com.foodtraffic.vendor.entity.operation.OperationItem;
 import com.foodtraffic.vendor.repository.operation.OperationItemRepository;
 import com.foodtraffic.vendor.repository.operation.OperationRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
@@ -27,18 +27,14 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ActiveProfiles("local")
+@ExtendWith(MockitoExtension.class)
 public class OperationTest {
 
     @Spy
     private ModelMapper modelMapper;
-
-    @Mock
-    private OperationRepository operationRepo;
 
     @Mock
     private OperationItemRepository operationItemRepo;
@@ -49,14 +45,13 @@ public class OperationTest {
     @InjectMocks
     private OperationServiceImpl operationService;
 
-    private static final String ACCESS_TOKEN = "abcdefg123";
+    private static final String ACCESS_TOKEN = "test";
 
     @Test
     public void givenSearchKeyEqualsWeek_whenGetOperations_thenReturnWeek() {
         List<OperationItem> opItems = mockWeek();
-        when(operationRepo.findOneByVendorId(100L)).thenReturn(mockOperation());
         when(operationItemRepo.findAllByVendorIdAndIsEventFalse(100L)).thenReturn(opItems);
-        when(operationItemRepo.findByVendorIdAndBetweenEventDates(anyLong(), anyObject())).thenReturn(Optional.empty());
+        when(operationItemRepo.findByVendorIdAndBetweenEventDates(anyLong(), any())).thenReturn(Optional.empty());
         List<OperationItemDto> operations = operationService.getOperations(100L, "week");
         assertEquals(7, operations.size());
     }
@@ -65,9 +60,8 @@ public class OperationTest {
     public void givenSearchKeyEqualsWeek_whenGetOperations_thenReturnSortedWeek() {
         List<OperationItem> opItems = mockWeek();
         Collections.swap(opItems, 0, 6); // swap Monday and Sunday
-        when(operationRepo.findOneByVendorId(100L)).thenReturn(mockOperation());
         when(operationItemRepo.findAllByVendorIdAndIsEventFalse(100L)).thenReturn(opItems);
-        when(operationItemRepo.findByVendorIdAndBetweenEventDates(anyLong(), anyObject())).thenReturn(Optional.empty());
+        when(operationItemRepo.findByVendorIdAndBetweenEventDates(anyLong(), any())).thenReturn(Optional.empty());
         List<OperationItemDto> operations = operationService.getOperations(100L, "week");
         assertEquals(modelMapper.map(mockWeek(), new TypeToken<List<OperationItemDto>>(){}.getType()), operations);
     }
@@ -75,9 +69,8 @@ public class OperationTest {
     @Test
     public void givenEventDuringWeek_whenGetOperations_thenReturnWeekWithEvent() {
         List<OperationItem> opItems = mockWeek();
-        when(operationRepo.findOneByVendorId(100L)).thenReturn(mockOperation());
         when(operationItemRepo.findAllByVendorIdAndIsEventFalse(100L)).thenReturn(opItems);
-        when(operationItemRepo.findByVendorIdAndBetweenEventDates(anyLong(), anyObject())).thenReturn(Optional.empty());
+        when(operationItemRepo.findByVendorIdAndBetweenEventDates(anyLong(), any())).thenReturn(Optional.empty());
         when(operationItemRepo.findByVendorIdAndBetweenEventDates(anyLong(), eq(LocalDate.now()))).thenReturn(mockEvent());
         List<OperationItemDto> operations = operationService.getOperations(100L, "week");
         assertEquals("Test Event", getEvent(operations).getEventName());
@@ -126,14 +119,6 @@ public class OperationTest {
         when(operationItemRepo.save(any())).thenReturn(mockEvent().get());
         OperationItemDto opItem = operationService.createEvent(100L, mockEvent().get(), ACCESS_TOKEN);
         assertNotNull(opItem);
-    }
-
-    private Optional<Operation> mockOperation() {
-        Operation operation = new Operation();
-        operation.setId(0L);
-        operation.setVendorId(100L);
-        operation.setOperationItems(mockWeek());
-        return Optional.of(operation);
     }
 
     private List<OperationItem> mockWeek() {
