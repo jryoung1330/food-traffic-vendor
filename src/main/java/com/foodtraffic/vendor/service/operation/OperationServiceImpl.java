@@ -2,11 +2,9 @@ package com.foodtraffic.vendor.service.operation;
 
 import com.foodtraffic.client.UserClient;
 import com.foodtraffic.model.dto.EmployeeDto;
-import com.foodtraffic.model.dto.OperationDto;
 import com.foodtraffic.model.dto.OperationItemDto;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.util.AppUtil;
-import com.foodtraffic.vendor.entity.operation.Operation;
 import com.foodtraffic.vendor.entity.operation.OperationItem;
 import com.foodtraffic.vendor.repository.operation.OperationItemRepository;
 import com.foodtraffic.vendor.repository.operation.OperationRepository;
@@ -23,6 +21,7 @@ import javax.validation.Valid;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 
 @Service
@@ -45,72 +44,74 @@ public class OperationServiceImpl implements OperationService {
 
     @Override
     public List<OperationItemDto> getOperations(final Long vendorId, String searchKey) {
-        List<OperationItem> opItems = new ArrayList<>();
-        Optional<Operation> option = operationRepo.findOneByVendorId(vendorId);
+        List<OperationItem> returnList = new ArrayList<>();
+        List<OperationItem> operationItems = operationItemRepo.findAllByVendorIdAndIsEventFalse(vendorId);
+        Collections.sort(operationItems);
 
-        if(option.isPresent()) {
-            List<OperationItem> operationItems = operationItemRepo.findAllByOperationIdAndIsEventFalse(option.get().getId());
-            Collections.sort(operationItems);
-
-            if("week".equals(searchKey)) {
-                opItems = applyEvents(operationItems);
-            } else if("3-day".equals(searchKey)) {
-                for(int i=0; i<3; i++) {
-                    int day = LocalDateTime.now().plusDays(i).getDayOfWeek().getValue();
-                    opItems.add(operationItems.get(day-1));
-                }
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request. Check the search key and try again");
+        if("week".equals(searchKey)) {
+            returnList = applyEvents(operationItems);
+        } else if("3-day".equals(searchKey)) {
+            for(int i=0; i<3; i++) {
+                int day = LocalDateTime.now().plusDays(i).getDayOfWeek().getValue();
+                returnList.add(operationItems.get(day-1));
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource does not exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request. Check the search key and try again");
         }
 
-        return modelMapper.map(opItems, new TypeToken<List<OperationItemDto>>(){}.getType());
+        return modelMapper.map(returnList, new TypeToken<List<OperationItemDto>>(){}.getType());
     }
 
     @Override
-    public OperationDto createWeek(Long vendorId) {
-        Optional<Operation> operation = operationRepo.findOneByVendorId(vendorId);
-        if(operation.isEmpty()) {
-            Operation op = modelMapper.map(createOperation(vendorId), Operation.class);
-            List<OperationItem> opItems = new ArrayList<>();
+    public List<OperationItemDto> getOperationItems(final Long vendorId, final String searchKey, LocalDate date) {
+        List<OperationItemDto> returnList = null;
+        if(searchKey.equals("month")) {
+            returnList = getEventsForMonth(vendorId, date.getMonth().name());
+        } else if(searchKey.equals("upcoming")) {
+            returnList = getUpcomingEvents(vendorId, date);
+        }
+        return returnList;
+    }
+
+    public List<OperationItemDto> getEventsForMonth(final Long vendorId, String month) {
+        Month searchKey;
+        try {
+            searchKey = Month.of(Integer.parseInt(month));
+        } catch (NumberFormatException e) {
+            searchKey = Month.valueOf(month.toUpperCase());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
+        }
+
+        List<OperationItem> events = operationItemRepo.findAllEventsInMonth(vendorId, searchKey.getValue());
+        return modelMapper.map(events, new TypeToken<List<OperationItemDto>>(){}.getType());
+    }
+
+    public List<OperationItemDto> getUpcomingEvents(final Long vendorId, LocalDate startDate) {
+        List<OperationItem> events = operationItemRepo.findAllUpcomingEvents(vendorId, startDate);
+        return modelMapper.map(events, new TypeToken<List<OperationItemDto>>(){}.getType());
+    }
+
+    @Override
+    public List<OperationItemDto> createWeek(Long vendorId) {
+        List<OperationItem> opItems = operationItemRepo.findAllByVendorIdAndIsEventFalse(vendorId);
+        if(opItems.isEmpty()) {
+            opItems = new ArrayList<>();
             for (int i = 0; i < 7; i++) {
                 OperationItem opItem = new OperationItem();
-                opItem.setOperationId(op.getId());
-                opItem.setDayOfWeek(DayOfWeek.of(i+1).name());
+                opItem.setVendorId(vendorId);
+                opItem.setDayOfWeek(DayOfWeek.of(i + 1).name());
                 opItem.setOpenTime("9:00");
                 opItem.setCloseTime("17:00");
                 opItems.add(opItem);
             }
             opItems = operationItemRepo.saveAll(opItems);
-            op.setOperationItems(opItems);
-            return modelMapper.map(op, OperationDto.class);
-        } else {
-            return modelMapper.map(operation.get(), OperationDto.class);
         }
+        return modelMapper.map(opItems, new TypeToken<List<OperationItemDto>>(){}.getType());
     }
 
     @Override
-    public OperationItemDto updateOperationItem(Long vendorId, Long operationId, Long operationItemId,
-                                                @Valid OperationItem operationItem, String accessToken) {
-        validateRequest(operationItemRepo.existsByOperationIdAndId(operationId, operationItemId), vendorId, accessToken);
-
-        if (operationItem.isEvent()) {
-            operationItem.setDayOfWeek(null);
-        }
-
-        if (operationItem.isClosed()) {
-            operationItem.setOpenTime(null);
-            operationItem.setCloseTime(null);
-        }
-
-        operationItem = operationItemRepo.save(operationItem);
-        return modelMapper.map(operationItem, OperationItemDto.class);
-    }
-
-    @Override
-    public OperationItemDto createEvent(Long vendorId, Long operationId, @Valid OperationItem opItem, String accessToken) {
+    public OperationItemDto createEvent(Long vendorId, @Valid OperationItem opItem, String accessToken) {
         // two types of events: 1) Holidays 2) Special Events
         // Holidays - day(s) where the vendor is closed
         // Special Events - days(s) where the vendor is open, but attending an event (not in the usual area)
@@ -131,11 +132,70 @@ public class OperationServiceImpl implements OperationService {
         }
 
         opItem.setId(null);
+
         opItem.setDayOfWeek(null);
         opItem.setEvent(true);
-        opItem.setOperationId(operationId);
+        opItem.setVendorId(vendorId);
         opItem = operationItemRepo.save(opItem);
         return modelMapper.map(opItem, OperationItemDto.class);
+    }
+
+    @Override
+    public OperationItemDto updateOperationItem(Long vendorId, Long operationItemId,
+                                                @Valid OperationItem operationItem, String accessToken) {
+        validateRequest(operationItemRepo.existsByVendorIdAndId(vendorId, operationItemId), vendorId, accessToken);
+
+        if (operationItem.isEvent()) {
+            operationItem.setDayOfWeek(null);
+        }
+
+        if (operationItem.isClosed()) {
+            operationItem.setOpenTime(null);
+            operationItem.setCloseTime(null);
+        }
+
+        operationItem = operationItemRepo.save(operationItem);
+        return modelMapper.map(operationItem, OperationItemDto.class);
+    }
+
+    @Override
+    public void deleteEvent(Long vendorId, Long operationItemId, String accessToken) {
+        validateRequest(operationItemRepo.existsByVendorIdAndId(vendorId, operationItemId), vendorId, accessToken);
+
+        OperationItem opItem = operationItemRepo.getOne(operationItemId);
+        if(opItem.isEvent()) {
+            operationItemRepo.delete(opItem);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete operations that are not events");
+        }
+    }
+
+    /*
+     * helper methods
+     */
+
+    private List<OperationItem> applyEvents(List<OperationItem> opItems) {
+        List<OperationItem> newOps = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        for(OperationItem opItem : opItems) {
+            int diff = DayOfWeek.valueOf(opItem.getDayOfWeek()).getValue() - today.getDayOfWeek().getValue();
+            OperationItem replacement = getEvent(opItem.getVendorId(), today.plusDays(diff));
+            newOps.add(Objects.requireNonNullElse(replacement, opItem));
+        }
+
+        return newOps;
+    }
+
+    private OperationItem getEvent(Long vendorId, LocalDate day) {
+        Optional<OperationItem> option = operationItemRepo.findByVendorIdAndBetweenEventDates(vendorId, day);
+        if(option.isPresent()) {
+            OperationItem opItem = new OperationItem();
+            modelMapper.map(option.get(), opItem);
+            opItem.setDayOfWeek(day.getDayOfWeek().name());
+            return opItem;
+        }
+        return null;
     }
 
     private boolean isAdmin(Long vendorId, String accessToken) {
@@ -150,40 +210,5 @@ public class OperationServiceImpl implements OperationService {
         } else if(!isAdmin(vendorId, accessToken)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient privileges");
         }
-    }
-
-    public OperationDto createOperation(Long vendorId) {
-        Operation operation = new Operation();
-        operation.setVendorId(vendorId);
-        operation = operationRepo.saveAndFlush(operation);
-        return modelMapper.map(operation, OperationDto.class);
-    }
-
-    /*
-     * helper methods
-     */
-
-    private List<OperationItem> applyEvents(List<OperationItem> opItems) {
-        List<OperationItem> newOps = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-
-        for(OperationItem opItem : opItems) {
-            int diff = DayOfWeek.valueOf(opItem.getDayOfWeek()).getValue() - today.getDayOfWeek().getValue();
-            OperationItem replacement = getEvent(opItem.getOperationId(), today.plusDays(diff));
-            newOps.add(Objects.requireNonNullElse(replacement, opItem));
-        }
-
-        return newOps;
-    }
-
-    private OperationItem getEvent(Long operationId, LocalDate day) {
-        Optional<OperationItem> option = operationItemRepo.findByOperationIdAndBetweenEventDates(operationId, day);
-        if(option.isPresent()) {
-            OperationItem opItem = new OperationItem();
-            modelMapper.map(option.get(), opItem);
-            opItem.setDayOfWeek(day.getDayOfWeek().name());
-            return opItem;
-        }
-        return null;
     }
 }

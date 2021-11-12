@@ -1,6 +1,7 @@
 package com.foodtraffic.vendor.service;
 
 import com.foodtraffic.client.UserClient;
+import com.foodtraffic.common.AuthService;
 import com.foodtraffic.model.dto.EmployeeDto;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.model.dto.VendorDto;
@@ -129,7 +130,7 @@ public class VendorServiceImpl implements VendorService {
                     && vendor.getDisplayName().length() <= 50
                     && vendor.getCity() != null
                     && vendor.getState() != null
-                    && vendor.getDescription().length() <= 300);
+                    && (vendor.getDescription() == null || vendor.getDescription().length() <= 300));
         } catch (NullPointerException e) {
         	return false;
         }

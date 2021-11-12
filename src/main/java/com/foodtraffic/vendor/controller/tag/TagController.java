@@ -13,18 +13,18 @@ import java.util.List;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"}, allowCredentials="true")
 @RestController
 @Api(tags = "Tag")
-@RequestMapping("/tags")
+@RequestMapping("/vendors")
 public class TagController {
 
     @Autowired
     TagService tagService;
 
-    @GetMapping
+    @GetMapping("/tags")
     public List<TagDto> getTags() {
         return tagService.getTags();
     }
 
-    @PostMapping
+    @PostMapping("/tags")
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto createTag(@RequestBody Tag tag) {
         return tagService.createTag(tag);

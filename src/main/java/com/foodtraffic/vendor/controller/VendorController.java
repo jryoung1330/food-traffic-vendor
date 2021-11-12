@@ -21,7 +21,9 @@ public class VendorController {
     private VendorService vendorService;
 
     @GetMapping
-    public List<VendorDto> getVendors(@RequestParam(required = false) String name, @RequestParam(required = false) String city, @RequestParam(required = false)  String state) {
+    public List<VendorDto> getVendors(@RequestParam(required = false) String name,
+                                      @RequestParam(required = false) String city,
+                                      @RequestParam(required = false)  String state) {
         if(name != null) {
             return vendorService.getAllVendorsByName(name);
         } else {

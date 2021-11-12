@@ -20,8 +20,8 @@ public class OperationItem implements Comparable<OperationItem>{
     @Column(name = "OPERATIONITEMID")
     private Long id;
 
-    @Column(name = "OPERATIONID")
-    private Long operationId;
+    @Column(name = "VENDORID")
+    private Long vendorId;
 
     @Column(name = "DAY_OF_WEEK")
     private String dayOfWeek;
