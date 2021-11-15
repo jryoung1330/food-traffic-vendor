@@ -13,14 +13,16 @@ public interface VendorService {
 
 	VendorDto getVendor(long id);
 
-	VendorDto createVendor(Vendor vendor, String accessToken);
+	VendorDto createVendor(String accessToken, Vendor vendor);
 
-	VendorDto updateVendor(long id, Vendor vendor, String accessToken);
+	VendorDto updateVendor(String accessToken, long id, Vendor vendor);
 
-	boolean checkVendorExists(String username, long id);
+	boolean checkVendorExists(String username);
+
+	boolean checkVendorExists(long id);
 
 	List<VendorDto> getFavoritesForUser(String accessToken);
 
-	boolean isFavorite(long id, String accessToken);
+	boolean isFavorite(String accessToken, long id);
 
 }

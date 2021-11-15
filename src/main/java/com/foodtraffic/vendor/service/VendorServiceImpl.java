@@ -1,7 +1,6 @@
 package com.foodtraffic.vendor.service;
 
 import com.foodtraffic.client.UserClient;
-import com.foodtraffic.common.AuthService;
 import com.foodtraffic.model.dto.EmployeeDto;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.model.dto.VendorDto;
@@ -62,7 +61,7 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public VendorDto createVendor(Vendor vendor, final String accessToken) {
+    public VendorDto createVendor(final String accessToken, Vendor vendor) {
         // check user access
         UserDto user = AppUtil.getUser(userClient, accessToken);
 
@@ -84,23 +83,31 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public VendorDto updateVendor(final long id, Vendor vendor, final String accessToken) {
+    public VendorDto updateVendor(final String accessToken, final long id, Vendor vendor) {
         UserDto user = AppUtil.getUser(userClient, accessToken);
-        if(isValid(id, vendor.getId(), user)) {
+        EmployeeDto emp = user.getEmployee();
+
+        if (vendor.getId() != id) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        } else if(!vendorRepo.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } else if (emp == null || emp.getVendorId() != id || !emp.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        } else {
             vendor = vendorRepo.saveAndFlush(vendor);
         }
+
         return modelMapper.map(vendor, VendorDto.class);
     }
 
     @Override
-    public boolean checkVendorExists(final String username, final long id) {
-        if (id > 0) {
-            return vendorRepo.existsById(id);
-        } else if (username != null) {
-            return vendorRepo.existsByUserName(username);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    public boolean checkVendorExists(final String username) {
+        return username != null && vendorRepo.existsByUserName(username);
+    }
+
+    @Override
+    public boolean checkVendorExists(final long id) {
+        return id > 0 && vendorRepo.existsById(id);
     }
     
     @Override
@@ -111,7 +118,7 @@ public class VendorServiceImpl implements VendorService {
 	}
     
     @Override
-	public boolean isFavorite(final long id, final String accessToken) {
+	public boolean isFavorite(final String accessToken, final long id) {
     	UserDto user = AppUtil.getUser(userClient, accessToken);
 		return favoriteRepo.existsByVendorIdAndUserId(id, user.getId());
 	}
@@ -142,18 +149,5 @@ public class VendorServiceImpl implements VendorService {
         employee.setAssociate(true);
         employee.setAdmin(true);
         employeeService.createEmployee(vendorId, employee);
-    }
-
-    private boolean isValid(final long id, long vendorId, UserDto user) {
-        checkVendorExists(null, id);
-        EmployeeDto emp = user.getEmployee();
-
-        if (vendorId != id) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase());
-        } else if (emp == null || emp.getVendorId() != id || !emp.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        }
-
-        return true;
     }
 }

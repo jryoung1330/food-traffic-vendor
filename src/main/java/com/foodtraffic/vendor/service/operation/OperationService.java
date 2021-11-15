@@ -11,13 +11,13 @@ import java.util.List;
 public interface OperationService {
     List<OperationItemDto> getOperations(Long vendorId, String searchKey);
 
-    List<OperationItemDto> getOperationItems(Long vendorId, String searchKey, LocalDate date);
+    List<OperationItemDto> getEvents(Long vendorId, String searchKey, LocalDate date);
 
     List<OperationItemDto> createWeek(Long vendorId);
 
-    OperationItemDto updateOperationItem(Long vendorId, Long operationItemId, OperationItem operationItem, String accessToken);
+    OperationItemDto updateOperationItem(String accessToken, Long vendorId, Long operationItemId, OperationItem operationItem);
 
-    OperationItemDto createEvent(Long vendorId, @Valid OperationItem opItem, String accessToken);
+    OperationItemDto createEvent(String accessToken, Long vendorId, @Valid OperationItem opItem);
 
-    void deleteEvent(Long vendorId, Long operationItemId, String accessToken);
+    void deleteEvent(String accessToken, Long vendorId, Long operationItemId);
 }

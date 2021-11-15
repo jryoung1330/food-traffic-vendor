@@ -1,8 +1,8 @@
 package com.foodtraffic.vendor.service.tag;
 
 import com.foodtraffic.model.dto.TagDto;
-import com.foodtraffic.model.dto.VendorDto;
 import com.foodtraffic.vendor.entity.Tag;
+import com.foodtraffic.vendor.repository.tag.TagRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;

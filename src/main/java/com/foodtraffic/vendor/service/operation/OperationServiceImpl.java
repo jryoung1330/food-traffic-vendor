@@ -21,7 +21,6 @@ import javax.validation.Valid;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.*;
 
 @Service
@@ -63,32 +62,13 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public List<OperationItemDto> getOperationItems(final Long vendorId, final String searchKey, LocalDate date) {
-        List<OperationItemDto> returnList = null;
+    public List<OperationItemDto> getEvents(final Long vendorId, final String searchKey, LocalDate date) {
+        List<OperationItem> events = null;
         if(searchKey.equals("month")) {
-            returnList = getEventsForMonth(vendorId, date.getMonth().name());
+            events = operationItemRepo.findAllEventsInMonth(vendorId, date.getMonth().getValue());
         } else if(searchKey.equals("upcoming")) {
-            returnList = getUpcomingEvents(vendorId, date);
+            events = operationItemRepo.findAllUpcomingEvents(vendorId, date);
         }
-        return returnList;
-    }
-
-    public List<OperationItemDto> getEventsForMonth(final Long vendorId, String month) {
-        Month searchKey;
-        try {
-            searchKey = Month.of(Integer.parseInt(month));
-        } catch (NumberFormatException e) {
-            searchKey = Month.valueOf(month.toUpperCase());
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
-        }
-
-        List<OperationItem> events = operationItemRepo.findAllEventsInMonth(vendorId, searchKey.getValue());
-        return modelMapper.map(events, new TypeToken<List<OperationItemDto>>(){}.getType());
-    }
-
-    public List<OperationItemDto> getUpcomingEvents(final Long vendorId, LocalDate startDate) {
-        List<OperationItem> events = operationItemRepo.findAllUpcomingEvents(vendorId, startDate);
         return modelMapper.map(events, new TypeToken<List<OperationItemDto>>(){}.getType());
     }
 
@@ -111,12 +91,12 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public OperationItemDto createEvent(Long vendorId, @Valid OperationItem opItem, String accessToken) {
+    public OperationItemDto createEvent(String accessToken, Long vendorId, @Valid OperationItem opItem) {
         // two types of events: 1) Holidays 2) Special Events
         // Holidays - day(s) where the vendor is closed
         // Special Events - days(s) where the vendor is open, but attending an event (not in the usual area)
 
-        validateRequest(true, vendorId, accessToken);
+        validateUserIsAdmin(vendorId, accessToken);
 
         if(opItem.getEventStartDate() == null || opItem.getEventEndDate() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start Date and End Date are required for events");
@@ -141,9 +121,18 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public OperationItemDto updateOperationItem(Long vendorId, Long operationItemId,
-                                                @Valid OperationItem operationItem, String accessToken) {
-        validateRequest(operationItemRepo.existsByVendorIdAndId(vendorId, operationItemId), vendorId, accessToken);
+    public OperationItemDto updateOperationItem(String accessToken,
+                                                Long vendorId,
+                                                Long operationItemId,
+                                                @Valid OperationItem operationItem) {
+        validateUserIsAdmin(vendorId, accessToken);
+        OperationItem opItem = operationItemRepo.getById(operationItemId);
+
+        if(opItem.isEvent() && !operationItem.isEvent()
+                || !opItem.isEvent() && operationItem.isEvent()
+                || !opItem.getVendorId().equals(operationItem.getVendorId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trying to update one or more fields cannot be changed");
+        }
 
         if (operationItem.isEvent()) {
             operationItem.setDayOfWeek(null);
@@ -159,14 +148,16 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public void deleteEvent(Long vendorId, Long operationItemId, String accessToken) {
-        validateRequest(operationItemRepo.existsByVendorIdAndId(vendorId, operationItemId), vendorId, accessToken);
+    public void deleteEvent(String accessToken, Long vendorId, Long operationItemId) {
+        validateUserIsAdmin(vendorId, accessToken);
+        OperationItem opItem = operationItemRepo.getById(operationItemId);
 
-        OperationItem opItem = operationItemRepo.getOne(operationItemId);
-        if(opItem.isEvent()) {
-            operationItemRepo.delete(opItem);
-        } else {
+        if (!opItem.getVendorId().equals(vendorId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trying to update one or more fields cannot be changed");
+        } else if (!opItem.isEvent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete operations that are not events");
+        } else {
+            operationItemRepo.delete(opItem);
         }
     }
 
@@ -198,16 +189,10 @@ public class OperationServiceImpl implements OperationService {
         return null;
     }
 
-    private boolean isAdmin(Long vendorId, String accessToken) {
+    private void validateUserIsAdmin(Long vendorId, String accessToken) {
         UserDto user = AppUtil.getUser(userClient, accessToken);
         EmployeeDto emp = user.getEmployee();
-        return emp != null && emp.getVendorId() == vendorId && emp.isAdmin();
-    }
-
-    private void validateRequest(boolean resourcesExist, Long vendorId, String accessToken) {
-        if(!resourcesExist) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource does not exist");
-        } else if(!isAdmin(vendorId, accessToken)) {
+        if(emp == null || emp.getVendorId() != vendorId || !emp.isAdmin()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient privileges");
         }
     }

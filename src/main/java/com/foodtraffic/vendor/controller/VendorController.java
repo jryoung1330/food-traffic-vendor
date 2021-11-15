@@ -6,6 +6,7 @@ import com.foodtraffic.vendor.service.VendorService;
 
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,33 +38,33 @@ public class VendorController {
     }
 
     @GetMapping("/check-vendor")
-    public boolean checkVendor(@RequestParam(name = "user-name", required = false) String userName,
+    public boolean checkVendor(@RequestParam(name = "user-name", required = false) String username,
                                @RequestParam(name = "id", required = false,  defaultValue = "0") Long id) {
-        return  vendorService.checkVendorExists(userName, id);
+        return username != null ? vendorService.checkVendorExists(username) : vendorService.checkVendorExists(id);
     }
     
     @GetMapping("/favorites")
-    public List<VendorDto> getFavorites(@CookieValue(value = "_gid", defaultValue = "") String accessToken) {
+    public List<VendorDto> getFavorites(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken) {
     	return vendorService.getFavoritesForUser(accessToken);
     }
 
     @GetMapping("/{id}/favorites")
-    public boolean isFavorite(@PathVariable Long id,
-                              @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
-    	return vendorService.isFavorite(id, accessToken);
+    public boolean isFavorite(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken,
+                              @PathVariable Long id) {
+    	return vendorService.isFavorite(accessToken, id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VendorDto createVendor(@RequestBody Vendor vendor,
-                                  @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
-        return vendorService.createVendor(vendor, accessToken);
+    public VendorDto createVendor(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken,
+                                  @RequestBody Vendor vendor) {
+        return vendorService.createVendor(accessToken, vendor);
     }
 
     @PutMapping("/{id}")
-    public VendorDto updateVendor(@PathVariable(name="id") Long id,
-                                  @RequestBody Vendor vendor,
-                                  @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
-        return vendorService.updateVendor(id, vendor, accessToken);
+    public VendorDto updateVendor(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken,
+                                  @PathVariable(name="id") Long id,
+                                  @RequestBody Vendor vendor) {
+        return vendorService.updateVendor(accessToken, id, vendor);
     }
 }

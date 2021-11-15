@@ -29,7 +29,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeDto> getEmployeeByVendor(final long vendorId, final String type) {
         List<Employee> employees;
 
-        if (!vendorService.checkVendorExists(null, vendorId)) {
+        if (!vendorService.checkVendorExists(vendorId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource does not exist");
         } else if ("admin".equals(type)) {
             employees = employeeRepo.findAllByVendorIdAndIsAdmin(vendorId, true);
@@ -45,7 +45,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         HttpStatus status;
         String message;
 
-        if (!vendorService.checkVendorExists(null, vendorId)) {
+        if (!vendorService.checkVendorExists(vendorId)) {
             status = HttpStatus.NOT_FOUND;
             message = "Resource does not exist";
         } else if (employeeRepo.existsById(employee.getId())) {
