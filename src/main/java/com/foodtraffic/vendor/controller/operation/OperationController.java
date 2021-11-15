@@ -6,6 +6,7 @@ import com.foodtraffic.vendor.service.operation.OperationService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,7 @@ public class OperationController {
     public List<OperationItemDto> getEvents(@PathVariable("vendorId") Long vendorId,
                                             @RequestParam("search") String searchKey,
                                             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return operationService.getOperationItems(vendorId, searchKey, date);
+        return operationService.getEvents(vendorId, searchKey, date);
     }
 
     @PostMapping("/operations")
@@ -40,25 +41,25 @@ public class OperationController {
     }
 
     @PostMapping("/events")
-    public OperationItemDto createEvent(@PathVariable("vendorId") Long vendorId,
-                                        @RequestBody OperationItem operationItem,
-                                        @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
-        return operationService.createEvent(vendorId, operationItem, accessToken);
+    public OperationItemDto createEvent(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken,
+                                        @PathVariable("vendorId") Long vendorId,
+                                        @RequestBody OperationItem operationItem) {
+        return operationService.createEvent(accessToken, vendorId, operationItem);
     }
 
     @PutMapping("/operations/{operationItemId}")
-    public OperationItemDto updateOperationItem(@PathVariable("vendorId") Long vendorId,
+    public OperationItemDto updateOperationItem(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken,
+                                                @PathVariable("vendorId") Long vendorId,
                                                 @PathVariable("operationItemId") Long operationItemId,
-                                                @RequestBody OperationItem operationItem,
-                                                @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
-        return operationService.updateOperationItem(vendorId, operationItemId, operationItem, accessToken);
+                                                @RequestBody OperationItem operationItem) {
+        return operationService.updateOperationItem(accessToken, vendorId, operationItemId, operationItem);
     }
 
     @DeleteMapping("/events/{operationItemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteEvent(@PathVariable("vendorId") Long vendorId,
-                                    @PathVariable("operationItemId") Long operationItemId,
-                                    @CookieValue(value = "_gid", defaultValue = "") String accessToken) {
-        operationService.deleteEvent(vendorId, operationItemId, accessToken);
+    public void deleteEvent(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken,
+                            @PathVariable("vendorId") Long vendorId,
+                            @PathVariable("operationItemId") Long operationItemId) {
+        operationService.deleteEvent(accessToken, vendorId, operationItemId);
     }
 }

@@ -42,6 +42,8 @@ public class CreateVendorTest {
 
     Vendor vendor;
 
+    public static final String ACCESS_TOKEN = "test";
+
     @BeforeEach
     public void setup() {
         vendor = mockVendor();
@@ -53,7 +55,7 @@ public class CreateVendorTest {
         when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
         when(vendorRepo.saveAndFlush(any())).thenReturn(mockVendor());
         when(employeeService.createEmployee(anyLong(), any())).thenReturn(mockEmployee());
-        VendorDto result = vendorService.createVendor(vendor, "test");
+        VendorDto result = vendorService.createVendor(ACCESS_TOKEN, vendor);
         assertNotNull(result);
     }
 
@@ -61,7 +63,7 @@ public class CreateVendorTest {
     public void givenNullName_whenCreateVendor_thenThrowException() {
         vendor.setUserName(null);
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -69,7 +71,7 @@ public class CreateVendorTest {
     public void givenInvalidName_whenCreateVendor_thenThrowException() {
         vendor.setUserName("mock vendor");
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -77,7 +79,7 @@ public class CreateVendorTest {
     public void givenNameLengthLT4_whenCreateVendor_thenThrowException() {
         vendor.setUserName("moc");
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -85,7 +87,7 @@ public class CreateVendorTest {
     public void givenNameLengthGT25_whenCreateVendor_thenThrowException() {
         vendor.setUserName("thisnameislongerthantwentyfivecharacters");
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -93,7 +95,7 @@ public class CreateVendorTest {
     public void givenNameAlreadyExists_whenCreateVendor_thenThrowException() {
         when(vendorRepo.existsByUserName(anyString())).thenReturn(true);
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -102,16 +104,16 @@ public class CreateVendorTest {
         vendor.setDisplayName("");
         when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
     @Test
     public void givenDisplayNameGT50_whenCreateVendor_thenThrowException() {
-        vendor.setDisplayName("thisnameislongerthanfiftycharactersthisnameislongerthanfiftycharacters");
+        vendor.setDisplayName(getStringLongerThan(50));
         when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -120,7 +122,7 @@ public class CreateVendorTest {
         vendor.setState(null);
         when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -129,7 +131,7 @@ public class CreateVendorTest {
         vendor.setCity(null);
         when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
 
@@ -138,7 +140,7 @@ public class CreateVendorTest {
         vendor.setDescription(getStringLongerThan(300));
         when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
         ResponseStatusException rse =
-                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(vendor, "test"));
+                assertThrows(ResponseStatusException.class, ()-> vendorService.createVendor(ACCESS_TOKEN, vendor));
         assertEquals(HttpStatus.BAD_REQUEST, rse.getStatus());
     }
     
@@ -148,7 +150,7 @@ public class CreateVendorTest {
         when(vendorRepo.existsByUserName(anyString())).thenReturn(false);
         when(vendorRepo.saveAndFlush(any())).thenReturn(mockVendor());
         when(employeeService.createEmployee(anyLong(), any())).thenReturn(mockEmployee());
-        vendorService.createVendor(vendor, "test");
+        vendorService.createVendor(ACCESS_TOKEN, vendor);
         verify(vendorRepo, times(1)).saveAndFlush(any());
     }
 

@@ -1,4 +1,4 @@
-package com.foodtraffic.vendor.service.tag;
+package com.foodtraffic.vendor.repository.tag;
 
 import com.foodtraffic.vendor.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
