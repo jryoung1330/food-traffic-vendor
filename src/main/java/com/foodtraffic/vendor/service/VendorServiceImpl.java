@@ -4,6 +4,7 @@ import com.foodtraffic.client.UserClient;
 import com.foodtraffic.model.dto.EmployeeDto;
 import com.foodtraffic.model.dto.UserDto;
 import com.foodtraffic.model.dto.VendorDto;
+import com.foodtraffic.model.response.Payload;
 import com.foodtraffic.util.AppUtil;
 import com.foodtraffic.vendor.entity.Vendor;
 import com.foodtraffic.vendor.entity.VendorStatus;
@@ -14,6 +15,9 @@ import com.foodtraffic.vendor.service.employee.EmployeeService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,16 +43,22 @@ public class VendorServiceImpl implements VendorService {
     @Autowired
     private UserClient userClient;
 
+    private static final int MAX_PAGE_SIZE = 25;
+
     @Override
-    public List<VendorDto> getAllVendorsByName(final String name) {
-        List<Vendor> vendors = vendorRepo.findAllByDisplayNameIgnoreCaseContaining(name);
-        return modelMapper.map(vendors, new TypeToken<List<VendorDto>>(){}.getType());
+    public Payload<List<VendorDto>> getAllVendorsByName(final String name, int page, int size) {
+        Pageable pageable = PageRequest.of(page, Math.min(size, MAX_PAGE_SIZE));
+        Page<Vendor> results = vendorRepo.findAllByDisplayNameIgnoreCaseContaining(name, pageable);
+        List<VendorDto> vendors = modelMapper.map(results.getContent(), new TypeToken<List<VendorDto>>(){}.getType());
+        return new Payload<>(vendors, results, "/vendors?name=" + name + "&");
     }
 
     @Override
-    public List<VendorDto> getAllVendorsByLocation(String city, String state) {
-        List<Vendor> vendors = vendorRepo.findAllByCityAndState(city, state);
-        return modelMapper.map(vendors, new TypeToken<List<VendorDto>>(){}.getType());
+    public Payload<List<VendorDto>> getAllVendorsByLocation(String city, String state, int page, int size) {
+        Pageable pageable = PageRequest.of(page, Math.min(size, MAX_PAGE_SIZE));
+        Page<Vendor> results = vendorRepo.findAllByCityAndState(city, state, pageable);
+        List<VendorDto> vendors = modelMapper.map(results.getContent(), new TypeToken<List<VendorDto>>(){}.getType());
+        return new Payload<>(vendors, results, "/vendors?city=" + city + "&state=" + state + "&");
     }
 
     @Override

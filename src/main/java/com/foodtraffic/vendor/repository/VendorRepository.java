@@ -1,6 +1,8 @@
 package com.foodtraffic.vendor.repository;
 
 import com.foodtraffic.vendor.entity.Vendor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,11 +13,9 @@ import java.util.List;
 @Repository
 public interface VendorRepository extends JpaRepository<Vendor, Long> {
 
-    List<Vendor> findAllByCityAndState(String city, String state);
+    Page<Vendor> findAllByCityAndState(String city, String state, Pageable pageable);
 
-    List<Vendor> findAllByZipCode(Integer zipCode);
-
-    List<Vendor> findAllByDisplayNameIgnoreCaseContaining(String name);
+    Page<Vendor> findAllByDisplayNameIgnoreCaseContaining(String name, Pageable pageable);
 
     boolean existsByUserName(String userName);
     

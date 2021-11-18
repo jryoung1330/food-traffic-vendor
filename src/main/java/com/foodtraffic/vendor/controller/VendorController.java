@@ -1,6 +1,7 @@
 package com.foodtraffic.vendor.controller;
 
 import com.foodtraffic.model.dto.VendorDto;
+import com.foodtraffic.model.response.Payload;
 import com.foodtraffic.vendor.entity.Vendor;
 import com.foodtraffic.vendor.service.VendorService;
 
@@ -22,13 +23,15 @@ public class VendorController {
     private VendorService vendorService;
 
     @GetMapping
-    public List<VendorDto> getVendors(@RequestParam(required = false) String name,
-                                      @RequestParam(required = false) String city,
-                                      @RequestParam(required = false)  String state) {
+    public Payload<List<VendorDto>> getVendors(@RequestParam(required = false) String name,
+                                               @RequestParam(required = false) String city,
+                                               @RequestParam(required = false)  String state,
+                                               @RequestParam(defaultValue = "0") Integer page,
+                                               @RequestParam(defaultValue = "10") Integer size) {
         if(name != null) {
-            return vendorService.getAllVendorsByName(name);
+            return vendorService.getAllVendorsByName(name, page, size);
         } else {
-            return vendorService.getAllVendorsByLocation(city, state);
+            return vendorService.getAllVendorsByLocation(city, state, page, size);
         }
     }
 
