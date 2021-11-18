@@ -3,13 +3,14 @@ package com.foodtraffic.vendor.service;
 import java.util.List;
 
 import com.foodtraffic.model.dto.VendorDto;
+import com.foodtraffic.model.response.Payload;
 import com.foodtraffic.vendor.entity.Vendor;
 
 public interface VendorService {
 
-	List<VendorDto> getAllVendorsByName(String name);
+	Payload<List<VendorDto>> getAllVendorsByName(String name, int page, int size);
 
-	List<VendorDto> getAllVendorsByLocation(String city, String state);
+	Payload<List<VendorDto>> getAllVendorsByLocation(String city, String state, int page, int size);
 
 	VendorDto getVendor(long id);
 
