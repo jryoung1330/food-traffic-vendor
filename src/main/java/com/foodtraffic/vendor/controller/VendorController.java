@@ -47,8 +47,10 @@ public class VendorController {
     }
     
     @GetMapping("/favorites")
-    public List<VendorDto> getFavorites(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken) {
-    	return vendorService.getFavoritesForUser(accessToken);
+    public Payload<List<VendorDto>> getFavorites(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String accessToken,
+                                                 @RequestParam(defaultValue = "0") Integer page,
+                                                 @RequestParam(defaultValue = "10") Integer size) {
+    	return vendorService.getFavoritesForUser(accessToken, page, size);
     }
 
     @GetMapping("/{id}/favorites")
