@@ -20,6 +20,6 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
     boolean existsByUserName(String userName);
     
     @Query(value = "SELECT * FROM VENDOR v WHERE v.vendorId IN (SELECT fav.vendorId FROM FAVORITE fav WHERE fav.userId = :userId)", nativeQuery=true)
-    List<Vendor> findAllByUserFavorites(@Param("userId") Long userId);
+    Page<Vendor> findAllByUserFavorites(@Param("userId") Long userId, Pageable pageable);
     
 }

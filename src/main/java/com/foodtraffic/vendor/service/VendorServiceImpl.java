@@ -121,10 +121,12 @@ public class VendorServiceImpl implements VendorService {
     }
     
     @Override
-	public List<VendorDto> getFavoritesForUser(final String accessToken) {
-        UserDto user = AppUtil.getUser(userClient, "Bearer " + accessToken);
-        List<Vendor> vendors = vendorRepo.findAllByUserFavorites(user.getId());
-        return modelMapper.map(vendors, new TypeToken<List<VendorDto>>(){}.getType());
+	public Payload<List<VendorDto>> getFavoritesForUser(final String accessToken, int page, int size) {
+        Pageable pageable = PageRequest.of(page, Math.min(size, MAX_PAGE_SIZE));
+        UserDto user = AppUtil.getUser(userClient, accessToken);
+        Page<Vendor> results = vendorRepo.findAllByUserFavorites(user.getId(), pageable);
+        List<VendorDto> vendors = modelMapper.map(results.getContent(), new TypeToken<List<VendorDto>>(){}.getType());
+        return new Payload<>(vendors, results, "/vendors/favorites?");
 	}
     
     @Override

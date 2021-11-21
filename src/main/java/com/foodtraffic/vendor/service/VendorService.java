@@ -22,7 +22,7 @@ public interface VendorService {
 
 	boolean checkVendorExists(long id);
 
-	List<VendorDto> getFavoritesForUser(String accessToken);
+	Payload<List<VendorDto>> getFavoritesForUser(String accessToken, int page, int size);
 
 	boolean isFavorite(String accessToken, long id);
 
