@@ -1,6 +1,7 @@
 package com.foodtraffic.vendor.controller.tag;
 
 import com.foodtraffic.model.dto.TagDto;
+import com.foodtraffic.model.response.Payload;
 import com.foodtraffic.vendor.entity.Tag;
 import com.foodtraffic.vendor.service.tag.TagService;
 import io.swagger.annotations.Api;
@@ -20,8 +21,10 @@ public class TagController {
     TagService tagService;
 
     @GetMapping("/tags")
-    public List<TagDto> getTags() {
-        return tagService.getTags();
+    public Payload<List<TagDto>> getTags(@RequestParam(required = false) String name,
+                                         @RequestParam(defaultValue = "0") Integer page,
+                                         @RequestParam(defaultValue = "25") Integer size) {
+        return tagService.getTags(name, page, size);
     }
 
     @PostMapping("/tags")
